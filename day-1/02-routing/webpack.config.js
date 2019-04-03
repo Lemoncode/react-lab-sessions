@@ -8,7 +8,12 @@ var basePath = __dirname;
 module.exports = {
   context: path.join(basePath, "src"),
   resolve: {
-    extensions: [".js", ".ts", ".tsx"]
+    extensions: [".js", ".ts", ".tsx"],
+    alias: {
+      // Later on we will add more aliases here
+      layout: path.resolve(__dirname, "./src/layout/"),
+      scenes: path.resolve(__dirname, "./src/scenes/")
+    }
   },
   entry: ["@babel/polyfill", "./index.tsx"],
   output: {

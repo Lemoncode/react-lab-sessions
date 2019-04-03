@@ -215,5 +215,69 @@ export const LoginPage = () =>
 +    <SingleViewLayout>
       <h2>Hello from login Page</h2>
       <Link to="/hotel-collection">Navigate to Hotel Collection</Link>
--    </SingleViewLayout>
+-    </>
++    </SingleViewLayout>
+```
+
+- Let's run the sample, now we get our loginPage centered.
+
+```bash
+npm start
+```
+
+- That was great, but we are starting to use relative paths on _imports_ (e.g. _'../layout'_), 
+this can become a nightmare, having imports like _'../../../../services'_, let's configure some
+root aliases to avoid this.
+
+Let's first configure webpack  and create some root folders aliases:
+
+_./webpack.config.js_
+
+```diff
+  resolve: {
++    alias: {
++      // Later on we will add more aliases here
++      layout: path.resolve(__dirname, './src/layout/'),      
++      scenes: path.resolve(__dirname, './src/scenes/'),
++    },    
+    extensions: [".js", ".ts", ".tsx"]
+  },
+```
+
+Now we need to add some special configuration to our _tsconfig_ (typescript)
+
+```diff
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "es6",
+    "moduleResolution": "node",
+    "declaration": false,
+    "noImplicitAny": false,
+    "jsx": "react",
+    "sourceMap": true,
+    "noLib": false,
+    "suppressImplicitAnyIndexErrors": true,
++    "baseUrl": "./src/",
++    "paths": {
++      "@layout": ["./layout/*"],
++      "@scenes": ["./scenes/*"]
++    }    
+  },
+  "compileOnSave": false,
+  "exclude": ["node_modules"]
+}
+```
+
+> Once we jump in to unit testing with Jest we will have to add as well this list of aliases.
+
+- Now we can get rid of the _layout_ relative path in _login.page.tsx_.
+
+_./src/scenes/login.page.tsx_
+
+```diff
+import * as React from "react"
+import { Link } from "react-router-dom";
+- import {SingleViewLayout} from '../layout';
+import {SingleViewLayout} from 'layout';
 ```
