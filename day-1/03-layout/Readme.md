@@ -199,3 +199,81 @@ export const LoginComponent = () => {
   );
 };
 ```
+
+- Let's run the sample:
+
+```bash
+npm start
+```
+
+- Hey ! we got some results, the card is displayed, let's add now some content:
+
+_./src/pods/login.component.tsx_
+
+```diff
+    <>
+      <Card>
+        <CardHeader title="Login" />
+        <CardContent>
+-          Content here...
++        <div>
++          <TextField label="Name" margin="normal" />
++          <TextField label="Password" type="password" margin="normal" />
++          <Button variant="contained" color="primary">
++            Login
++          </Button>
++        </div>
+        </CardContent>
+      </Card>
+    </>
+```
+
+- Nice we got the controls but layout is looking a bit weird we want the forms
+  to flow top to bottom. Let's add some styling, we will make use of flexbox to
+  do this and we will make use of CSS in JS (we will setup list of properties,
+  extend from a given helper to get properties types and a high order component
+  to inject the CSS in our component)
+
+```diff
++ import { createStyles, WithStyles, withStyles } from "@material-ui/core";
+
+
++ const styles = theme =>
++  createStyles({
++    formContainer: {
++            display: "flex",
++            flexDirection: "column",
++            justifyContent: "center"+
++    }
++  });
+
++ interface Props extends WithStyles<typeof styles> {}
+
+- export const LoginComponent = () => {
++ export const LoginComponentInner = (props : Props) => {
++ const { classes } = props;
+
+  return (
+    <>
+      <Card>
+        <CardHeader title="Login" />
+        <CardContent>
+-          <div>
++          <div className={classes.formContainer}>
+            <TextField label="Name" margin="normal" />
+            <TextField label="Password" type="password" margin="normal" />
+            <Button variant="contained" color="primary">
+              Login
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </>
+  );
+};
+
++ export const LoginComponent = withStyles(styles)(LoginComponentInner);
+```
+
+> Excercise the loginCard still look to cluttered, let's add a minWidth of 400px or
+> a similar size using rem.
