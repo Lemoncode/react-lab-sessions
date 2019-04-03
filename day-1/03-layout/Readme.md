@@ -167,4 +167,35 @@ export const LoginPage = () =>
 npm start
 ```
 
-- Now it's time to start building our layout:
+- Now it's time to start building our layout: we are going to make use of cards,
+  textfield and buttons (you can check how the work on the react material ui official
+  page: https://material-ui.com/), and we will use HTML standard flexbox to place
+  the components.
+
+Let's start by creating a login card (we will import as well the widgets we need to
+use to build the whole form)
+
+_./src/pods/login.component.tsx_
+
+```diff
+import * as React from "react";
++ import Card from "@material-ui/core/Card";
++ import CardHeader from "@material-ui/core/CardHeader";
++ import CardContent from "@material-ui/core/CardContent";
++ import TextField from "@material-ui/core/TextField";
++ import Button from "@material-ui/core/Button";
+
+export const LoginComponent = () => {
+  return (
+    <>
+-      <h1>Hello from login pod, login component</h1>
++      <Card>
++        <CardHeader title="Login" />
++        <CardContent>
++          Content here...
++        </CardContent>
++      </Card>
+    </>
+  );
+};
+```
