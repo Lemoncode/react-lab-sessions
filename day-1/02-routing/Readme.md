@@ -239,6 +239,7 @@ _./webpack.config.js_
 +      // Later on we will add more aliases here
 +      layout: path.resolve(__dirname, './src/layout/'),      
 +      scenes: path.resolve(__dirname, './src/scenes/'),
++      core: path.resolve(__dirname, './src/core/'),
 +    },    
     extensions: [".js", ".ts", ".tsx"]
   },
@@ -261,7 +262,8 @@ Now we need to add some special configuration to our _tsconfig_ (typescript)
 +    "baseUrl": "./src/",
 +    "paths": {
 +      "@layout": ["./layout/*"],
-+      "@scenes": ["./scenes/*"]
++      "@scenes": ["./scenes/*"],
++      "@core": ["./core/*"]
 +    }    
   },
   "compileOnSave": false,
@@ -280,4 +282,123 @@ import * as React from "react"
 import { Link } from "react-router-dom";
 - import {SingleViewLayout} from '../layout';
 import {SingleViewLayout} from 'layout';
+```
+
+- As last step we will remove harcoded routes entries, and wrap all the routes in a const file
+(note down we need to add additional plumbing because routes definitions are different from links
+if you have to handle parameters), just to check how this works we will include a route that we will
+use in the future (hotel edit).
+
+_./src/core/routes.ts_
+
+```typescript
+import { generatePath } from "react-router";
+
+interface BaseRoutes {
+  login : string;
+  hotelCollection : string;
+  hotelEdit: string;
+}
+
+const appBaseRoutes : BaseRoutes = {
+  login: '/',
+  hotelCollection: '/hotel-collection',
+  hotelEdit: '/hotel-edit',
+}
+
+type RouterSwitchRoutes = BaseRoutes;
+
+// We need to create this because in future pages we will include parameters
+// e.g. '/hotel/:userId' this wiyll differ from the link
+export const routerSwitchRoutes : RouterSwitchRoutes =  {
+  ...appBaseRoutes,
+  hotelEdit: `/${appBaseRoutes.hotelEdit}/:id`,
+}
+
+// https://stackoverflow.com/questions/48215950/exclude-property-from-type
+type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>
+
+type RoutesLinks = Omit<BaseRoutes, 'hotelEdit'> & {hotelEdit : (id) => string};
+
+// We need to create this because in future pages we will include parameters
+// e.g. 'hotel: (hotelId) => /hotel/{hotelId}' this will differ from the route definition
+export const routesLinks : RoutesLinks =  {
+  ...appBaseRoutes,  
+  hotelEdit: (id) => generatePath(routerSwitchRoutes.hotelEdit, {id}) 
+}
+```
+
+- Let's create a barrel.
+
+_./src/core/index.ts_
+
+```typescript
+export * from './routes';
+```
+
+- Let's replace our hardcoded values with this consts.
+
+_./src/index.tsx_
+
+```diff
+import * as React from 'react';
+import * as ReactDOM from 'react-dom';
+import { HashRouter, Switch, Route } from 'react-router-dom';
+import { LoginPage, HotelCollectionPage } from './scenes';
++ import {routerSwitchRoutes} from 'core';
+
+ReactDOM.render(
+   <HashRouter>
+     <Switch>
+       <Route 
+          exact={true} 
+-          path='/' 
++          path={routerSwitchRoutes.login}
+          component={LoginPage} />
+       <Route 
+-          path="/hotel-collection",
++          path={routerSwitchRoutes.hotelCollection}
+          component={HotelCollectionPage} />
+     </Switch>
+   </HashRouter>,  
+  document.getElementById('root')
+);
+```
+
+- Now let's replace harcoded entries in the Link components.
+
+_./src/scenes/login.page.tsx_
+
+```diff
+import * as React from "react"
+import { Link } from "react-router-dom";
+- import {SingleViewLayout} from '../layout';
++ import {SingleViewLayout} from 'layout';
++ import {routesLinks} from 'core';
+
+export const LoginPage = () =>
+    <SingleViewLayout>
+      <h2>Hello from login Page</h2>
+      <Link 
++        to={routesLinks.hotelCollection}      
+-        to="/hotel-collection"
+      >Navigate to Hotel Collection</Link>
+    </SingleViewLayout>
+```
+
+_./src/scenes/hotel-collection.page.tsx_
+
+```diff
+import * as React from "react"
+import { Link } from "react-router-dom";
++ import {routesLinks} from 'core';
+
+export const HotelCollectionPage = () =>
+    <>
+      <h2>Hello from Hotel Collection Page</h2>
+      <Link 
++        to={routesLinks.login}
+-        to="/"
+        >Navigate to login</Link>
+    </>
 ```

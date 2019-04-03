@@ -12,7 +12,8 @@
     "baseUrl": "./src/",
     "paths": {
       "@layout": ["./layout/*"],
-      "@scenes": ["./scenes/*"]
+      "@scenes": ["./scenes/*"],
+      "@core": ["./core/*"]
     }
   },
   "compileOnSave": false,

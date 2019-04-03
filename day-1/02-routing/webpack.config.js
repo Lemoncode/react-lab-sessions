@@ -12,7 +12,8 @@ module.exports = {
     alias: {
       // Later on we will add more aliases here
       layout: path.resolve(__dirname, "./src/layout/"),
-      scenes: path.resolve(__dirname, "./src/scenes/")
+      scenes: path.resolve(__dirname, "./src/scenes/"),
+      core: path.resolve(__dirname, './src/core/'),
     }
   },
   entry: ["@babel/polyfill", "./index.tsx"],
