@@ -5,7 +5,8 @@ import CardContent from "@material-ui/core/CardContent";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import { createStyles, WithStyles, withStyles } from "@material-ui/core";
-import { LoginEntity as LoginEntityVm } from "./login.vm";
+import { LoginEntity as LoginEntityVm, LoginFormErrors } from "./login.vm";
+import { TextFieldForm } from "common/components";
 
 const styles = theme =>
   createStyles({
@@ -20,10 +21,17 @@ interface Props extends WithStyles<typeof styles> {
   onLogin: () => void;
   credentials: LoginEntityVm;
   onUpdateCredentials: (name: keyof LoginEntityVm, value: string) => void;
+  loginFormErrors: LoginFormErrors;
 }
 
 export const LoginComponentInner = (props: Props) => {
-  const { classes, onLogin, credentials, onUpdateCredentials } = props;
+  const {
+    classes,
+    onLogin,
+    credentials,
+    onUpdateCredentials,
+    loginFormErrors
+  } = props;
 
   const onTexFieldChange = (fieldId: keyof LoginEntityVm) => e => {
     onUpdateCredentials(fieldId, e.target.value);
@@ -35,18 +43,20 @@ export const LoginComponentInner = (props: Props) => {
         <CardHeader title="Login" />
         <CardContent>
           <div className={classes.formContainer}>
-            <TextField
+            <TextFieldForm
               label="Name"
-              margin="normal"
+              name="login"
               value={credentials.login}
-              onChange={onTexFieldChange("login")}
+              onChange={onUpdateCredentials}
+              error={loginFormErrors.login.errorMessage}
             />
-            <TextField
+            <TextFieldForm
               label="Password"
               type="password"
-              margin="normal"
+              name="password"
               value={credentials.password}
-              onChange={onTexFieldChange('password')}
+              onChange={onUpdateCredentials}
+              error={loginFormErrors.password.errorMessage}
             />
             <Button variant="contained" color="primary" onClick={onLogin}>
               Login

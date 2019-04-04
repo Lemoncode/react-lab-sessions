@@ -15,6 +15,7 @@ module.exports = {
       scenes: path.resolve(__dirname, "./src/scenes/"),
       core: path.resolve(__dirname, "./src/core/"),
       pods: path.resolve(__dirname, "./src/pods/"),
+      common: path.resolve(__dirname, "./src/common/"),
     }
   },
   entry: ["@babel/polyfill", "./index.tsx"],
