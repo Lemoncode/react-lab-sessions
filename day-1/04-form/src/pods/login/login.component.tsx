@@ -5,7 +5,7 @@ import CardContent from "@material-ui/core/CardContent";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import { createStyles, WithStyles, withStyles } from "@material-ui/core";
-import { LoginEntity } from "./login.vm";
+import { LoginEntity as LoginEntityVm } from "./login.vm";
 
 const styles = theme =>
   createStyles({
@@ -18,14 +18,14 @@ const styles = theme =>
 
 interface Props extends WithStyles<typeof styles> {
   onLogin: () => void;
-  credentials: LoginEntity;
-  onUpdateCredentials: (name: keyof LoginEntity, value: string) => void;
+  credentials: LoginEntityVm;
+  onUpdateCredentials: (name: keyof LoginEntityVm, value: string) => void;
 }
 
 export const LoginComponentInner = (props: Props) => {
   const { classes, onLogin, credentials, onUpdateCredentials } = props;
 
-  const onTexFieldChange = (fieldId: keyof LoginEntity) => e => {
+  const onTexFieldChange = (fieldId: keyof LoginEntityVm) => e => {
     onUpdateCredentials(fieldId, e.target.value);
   };
 

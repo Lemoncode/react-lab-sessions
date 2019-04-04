@@ -144,12 +144,12 @@ time to really understand how one way data flow works:
 _./src/pods/login.vm.ts_
 
 ```typescript
-export interface LoginEntity {
+export interface LoginEntityVm {
   login: string;
   password: string;
 }
 
-export const createEmptyLogin = (): LoginEntity => ({
+export const createEmptyLogin = (): LoginEntityVm => ({
   login: "",
   password: ""
 });
@@ -160,12 +160,12 @@ export const createEmptyLogin = (): LoginEntity => ({
 _./src/pods/login/login.container.tsx_
 
 ```diff
-+ import {LoginEntity, createEmptyLogin} from './login.vm'
++ import {LoginEntityVm, createEmptyLogin} from './login.vm'
 // ...
 
 export const LoginContainerInner = (props : Props) => {  
 
-+ const [credentials, setCredentials] = React.useState<LoginEntity>(createEmptyLogin());
++ const [credentials, setCredentials] = React.useState<LoginEntityVm>(createEmptyLogin());
 
   const {history} = props;
 
@@ -195,7 +195,7 @@ _./src/pods/login/login.container.tsx_
 
 ```diff
 export const LoginContainerInner = (props : Props) => {  
-  const [credentials, setCredentials] = React.useState<LoginEntity>(createEmptyLogin());
+  const [credentials, setCredentials] = React.useState<LoginEntityVm>(createEmptyLogin());
   const {history} = props;
 
   const doLogin = () => {
@@ -224,14 +224,14 @@ having to add props prefix to every call.
 _./src/pods/login/login.component.tsx_
 
 ```diff
-+ import {LoginEntity} from './login.vm'
++ import {LoginEntityVm} from './login.vm'
 
 // (...)
 
 interface Props extends WithStyles<typeof styles> {
   onLogin : () => void; 
-+ credentials : LoginEntity;
-+ onUpdateCredentials : (name : keyof LoginEntity, value : string) => void;
++ credentials : LoginEntityVm;
++ onUpdateCredentials : (name : keyof LoginEntityVm, value : string) => void;
 }
 
 export const LoginComponentInner = (props: Props) => {
@@ -269,7 +269,7 @@ _./src/pods/login/login.component.tsx_
 
 ```diff
   export const LoginComponentInner = (props: Props) => {
-  const { classes, onLogin, LoginEntity, onUpdateCredentials} = props;
+  const { classes, onLogin, LoginEntityVm, onUpdateCredentials} = props;
   
 +  const onTexFieldChange = (fieldId : keyof Credentials) => (e) => {
 +    onUpdateCredentials(fieldId, e.target.value);
@@ -316,6 +316,47 @@ _./src/pods/login/login.container.tsx_
   }
 ```
 
+- Le'ts give a try:
+
+```bash
+npm start
+```
+
+- Now it's time validate that the credentials are valid, to do that we will create a fake validation
+service and we will simulate that we are making a request to a server (using setTimeout).
+
+_./src/pods/login/api.ts_
+
+```typescript
+// This is just test code, never hard code user and password in JS this should call a real service
+export const validateCredentials = (user : string, password : string) : Promise<boolean> => 
+  new Promise<boolean>((resolve) => 
+    setTimeout(() => 
+      resolve((user === 'admin' && password === 'test'))
+    , 500)
+  );  
+```
+
+- Let's call this api service in our _login.containter.tsx_
+
+_./src/pods/login/login.container.tsx_
+
+```diff
++ import {validateCredentials} from './api';
+
+  const doLogin = () => {    
+-    console.log(credentials);
++   validateCredentials(credentials.login, credentials.password).then((areValidCredentials) => {
++       (areValidCredentials) ?
++           history.push(routesLinks.hotelCollection)
++       : 
++      alert('invalid credentials, use admin/test, excercise: display a mui snackbar instead of this alert.') 
++       ;
++ });
+  }
+```
+
+
 // pending api service + promise + timeout
 // validate password (admin / test)
 // Excercises, toast not valid user password
@@ -344,5 +385,13 @@ export const LoginComponentInner = (props: Props) => {
   );
 };
 ```
+
+## Excercise 2
+
+Replace current alert with a Material ui snackbar:
+
+- Sample: https://material-ui.com/demos/snackbars/
+
+- Wrap it into a notification control under components.
 
 
