@@ -5,6 +5,7 @@ import CardContent from "@material-ui/core/CardContent";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import { createStyles, WithStyles, withStyles } from "@material-ui/core";
+import { LoginEntity } from "./login.vm";
 
 const styles = theme =>
   createStyles({
@@ -16,11 +17,17 @@ const styles = theme =>
   });
 
 interface Props extends WithStyles<typeof styles> {
-  onLogin : () => void; 
+  onLogin: () => void;
+  credentials: LoginEntity;
+  onUpdateCredentials: (name: keyof LoginEntity, value: string) => void;
 }
 
 export const LoginComponentInner = (props: Props) => {
-  const { classes, onLogin } = props;
+  const { classes, onLogin, credentials, onUpdateCredentials } = props;
+
+  const onTexFieldChange = (fieldId: keyof LoginEntity) => e => {
+    onUpdateCredentials(fieldId, e.target.value);
+  };
 
   return (
     <>
@@ -28,8 +35,19 @@ export const LoginComponentInner = (props: Props) => {
         <CardHeader title="Login" />
         <CardContent>
           <div className={classes.formContainer}>
-            <TextField label="Name" margin="normal" />
-            <TextField label="Password" type="password" margin="normal" />
+            <TextField
+              label="Name"
+              margin="normal"
+              value={credentials.login}
+              onChange={onTexFieldChange("login")}
+            />
+            <TextField
+              label="Password"
+              type="password"
+              margin="normal"
+              value={credentials.password}
+              onChange={onTexFieldChange('password')}
+            />
             <Button variant="contained" color="primary" onClick={onLogin}>
               Login
             </Button>

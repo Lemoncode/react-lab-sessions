@@ -101,7 +101,7 @@ interface Props extends WithStyles<typeof styles> {
 
 _./src/pods/login/login.component.tsx_
 
-````diff
+```diff
 export const LoginComponentInner = (props: Props) => {
 -  const { classes } = props;
 +  const { classes, onLogin } = props;
@@ -124,6 +124,225 @@ export const LoginComponentInner = (props: Props) => {
     </>
   );
 };
-``
+```
+
+- Let's run the project
+
+```
+npm start
+```
+
+- Now we need to collect the data that the user is entering in the name and password textfields, now it's
+time to really understand how one way data flow works:
+  - We cannot just grab the value from the text field.
+  - We have to bind a value.
+  - We have to listen for any change, send the update via callback and from the container component
+  set the value so it will flow down an update the textField.
+
+- We will start by creating a viewModel:
+
+_./src/pods/login.vm.ts_
+
+```typescript
+export interface LoginEntity {
+  login: string;
+  password: string;
+}
+
+export const createEmptyLogin = (): LoginEntity => ({
+  login: "",
+  password: ""
+});
+```
+
+- We will store current login information in the container state.
+
+_./src/pods/login/login.container.tsx_
+
+```diff
++ import {LoginEntity, createEmptyLogin} from './login.vm'
+// ...
+
+export const LoginContainerInner = (props : Props) => {  
+
++ const [credentials, setCredentials] = React.useState<LoginEntity>(createEmptyLogin());
+
+  const {history} = props;
+
+  const doLogin = () => {
+    history.push(routesLinks.hotelCollection);
+  }
+
+  return <LoginComponent onLogin={doLogin}/>
+};
+```
+
+- We need to pass down credentials to the login component:
+
+_./src/pods/login/login.container.tsx_
+
+```diff
+return <LoginComponent 
+          onLogin={doLogin}
++          credentials={credentials}
+        />
+```
+
+- And we need to received updates from the login component to store them in the
+credentials state.
+
+_./src/pods/login/login.container.tsx_
+
+```diff
+export const LoginContainerInner = (props : Props) => {  
+  const [credentials, setCredentials] = React.useState<LoginEntity>(createEmptyLogin());
+  const {history} = props;
+
+  const doLogin = () => {
+    history.push(routesLinks.hotelCollection);
+  }
+
++ const onUpdateCredentialsField = (name, value) => {
++   setCredentials({
++     ...credentials,
++     [name]: value,
++   });
++ }
+
+  return <LoginComponent 
+              onLogin={doLogin}
+              credentials={credentials}
++             onUpdateCredentials={onUpdateCredentialsField}              
+              />
+};
+
+```
+
+- Let's setup this as props on the login component and use destructuring to avoid
+having to add props prefix to every call.
+
+_./src/pods/login/login.component.tsx_
+
+```diff
++ import {LoginEntity} from './login.vm'
+
+// (...)
+
+interface Props extends WithStyles<typeof styles> {
+  onLogin : () => void; 
++ credentials : LoginEntity;
++ onUpdateCredentials : (name : keyof LoginEntity, value : string) => void;
+}
+
+export const LoginComponentInner = (props: Props) => {
+-   const { classes, onLogin } = props;
++ const { classes, onLogin, credentials, onUpdateCredentials} = props;
+```
+
+- Now on one hand we need to bind the credentials values to each _TextField_ and 
+subscribe to the _TextField_ on change event to detect changes an update the state.
+
+_./src/pods/login/login.component.tsx_
+
+```diff
+  <TextField 
+    label="Name" 
+    margin="normal" 
++   value={credentials.login}
+  />
+  <TextField 
+    label="Password" 
+    type="password" 
+    margin="normal" 
++   value={credentials.password}
+  />
+```
+
+- Let's hook to updates, here we have a challenge:
+  - TextField expects an event targe value.
+  - Our Update field expects name and value.
+
+  We will add a helper method and make use of curry to inform the field name (there are
+  other tricks like adding a name to the component and pass there the Id of the field).
+
+_./src/pods/login/login.component.tsx_
+
+```diff
+  export const LoginComponentInner = (props: Props) => {
+  const { classes, onLogin, LoginEntity, onUpdateCredentials} = props;
+  
++  const onTexFieldChange = (fieldId : keyof Credentials) => (e) => {
++    onUpdateCredentials(fieldId, e.target.value);
++  }
+
+  return (
+    <>
+      <Card>
+        <CardHeader title="Login" />
+        <CardContent>
+          <div className={classes.formContainer}>
+            <TextField 
+              label="Name" 
+              margin="normal" 
+              value={credentials.login}
++             onChange={onTexFieldChange('login')}
+            />
+            <TextField 
+              label="Password" 
+              type="password" 
+              margin="normal" 
+              value={credentials.password}
++            onChange={onTexFieldChange('password')}
+            />
+            <Button variant="contained" color="primary" onClick={onLogin}>
+              Login
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </>
+  );
+};
+```
+- Just to make a quick check and ensure we are on the right track let's add a console.log 
+in our container, just when the user hits the login button and print out the credentials.
+
+_./src/pods/login/login.container.tsx_
+
+```diff
+  const doLogin = () => {
++    console.log(credentials);
+    history.push(routesLinks.hotelCollection);
+  }
+```
+
+// pending api service + promise + timeout
+// validate password (admin / test)
+// Excercises, toast not valid user password
+
+# Excercises
+
+##Excercise 1 
+
+LoginComponent can be componentized, final result should look like:
+
+```tsx
+export const LoginComponentInner = (props: Props) => {
+  const { classes, onLogin } = props;
+
+  return (
+    <>
+      <Card>
+        <CardHeader title="Login" />
+        <CardContent>
+          <LoginForm 
+            onLogin={onLogin}
+          />
+        </CardContent>
+      </Card>
+    </>
+  );
+};
+```
 
 
