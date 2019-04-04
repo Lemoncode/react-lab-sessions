@@ -15,10 +15,12 @@ const styles = theme =>
     }
   });
 
-interface Props extends WithStyles<typeof styles> {}
+interface Props extends WithStyles<typeof styles> {
+  onLogin : () => void; 
+}
 
 export const LoginComponentInner = (props: Props) => {
-  const { classes } = props;
+  const { classes, onLogin } = props;
 
   return (
     <>
@@ -28,7 +30,7 @@ export const LoginComponentInner = (props: Props) => {
           <div className={classes.formContainer}>
             <TextField label="Name" margin="normal" />
             <TextField label="Password" type="password" margin="normal" />
-            <Button variant="contained" color="primary">
+            <Button variant="contained" color="primary" onClick={onLogin}>
               Login
             </Button>
           </div>
