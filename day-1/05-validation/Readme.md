@@ -31,4 +31,58 @@ Install [Node.js and npm](https://nodejs.org/en/) if they are not already instal
 npm install
 ```
 
+- Let's install _lc-form-validation_
+
+```bash
+npm install lc-form-validation --save
+```
+
+- To avoid having too much repeated code let's move to common an input component, including it's label plus validation text.
+
+_./src/common/components/textFieldForm.tsx_
+
+```tsx
+import * as React from "react";
+import TextField from "@material-ui/core/TextField";
+import Typography from "@material-ui/core/Typography/Typography";
+
+interface Props {
+  name: string;
+  label: string;
+  onChange: any;
+  value: string;
+  error?: string;
+  type?: string;
+}
+
+const defaultProps: Partial<Props> = {
+  type: "text"
+};
+
+const onTextFieldChange = (
+  fieldId: string,
+  onChange: (fieldId, value) => void
+) => e => {
+  onChange(fieldId, e.target.value);
+};
+
+export const TextFieldForm: React.StatelessComponent<Props> = props => {
+  const { name, label, onChange, value, error, type } = props;
+  return (
+    <>
+      <TextField
+        label={label}
+        margin="normal"
+        value={value}
+        type={type}
+        onChange={onTextFieldChange(name, onChange)}
+      />
+      <Typography variant="caption" color="error" gutterBottom>
+        {props.error}
+      </Typography>
+    </>
+  );
+};
+```
+
 // *** WIP
