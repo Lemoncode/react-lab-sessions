@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "es6",
+    "moduleResolution": "node",
+    "declaration": false,
+    "noImplicitAny": false,
+    "jsx": "react",
+    "sourceMap": true,
+    "noLib": false,
+    "suppressImplicitAnyIndexErrors": true,
+    "baseUrl": "./src/",
+    "paths": {
+      "@layout": ["./layout/*"],
+      "@scenes": ["./scenes/*"],
+      "@core": ["./core/*"],
+      "@pods": ["./pods/*"],
+      "@common": ["./common/*"]
+    }
+  },
+  "compileOnSave": false,
+  "exclude": ["node_modules"]
+}
