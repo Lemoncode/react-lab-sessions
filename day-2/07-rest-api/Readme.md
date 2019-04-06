@@ -146,15 +146,16 @@ export const HotelCollectionPage = () =>
 ```
 npm start
 ```
+
 - Next step let's start building an hotel card:
   - We will use material ui card (https://material-ui.com/demos/cards/).
   - We will create a simple entry just to build the card.
   - Once we are done with the card, we will just create an array of 
   hotels and loop through it.
 
-- Let's create some fake data on the _hotel-card-container_
+- Let's create some fake data on the _hotel-collection-container_
 
-_./src/pods/hotel-collection/hote.container.tsx_
+_./src/pods/hotel-collection/hotel-collection.container.tsx_
 
 ```diff
 import * as React from "react";
@@ -180,8 +181,35 @@ import { HotelCollectionComponent } from './hotel-collection.component'
 +]);
 
 export const HotelCollectionContainer = () => {
++ const [hotelCollection, setHotelCollection] = React.useState<HotelEntityVm[]>(createMockHotelCollection());
+
   return (
-    <HotelCollectionComponent/>
+-    <HotelCollectionComponent/>
++    <HotelCollectionComponent hotelCollection={hotelCollection}/>
+  );
+}
+```
+
+- Let's jump into our _HotelCollection_ component, and include this property plus a reference
+to an _HotelCard_ component that we are about to create.
+
+_./src/pods/hotel-collection/hotel-collection.component.tsx_
+
+```diff
+import * as React from "react";
++ import {HotelEntityVm} from './hotel-collection.vm';
++ import {HotelCard} from './components/hotel-card.component' // on next step we will create this component
+
++ interface Props {
++  hotelCollection : HotelEntityVm[]
++ }
+
+- export const HotelCollectionComponent = () => {
++ export const HotelCollectionComponent = (props : Props) => {  
++  const {hotelCollection} = props;
+  return (    
+-    <h1>Hello from collection component</h1>
++    <HotelCard hotel={hotelCollection[0]}/>
   );
 }
 ```
@@ -207,6 +235,7 @@ interface Props {
   hotel: HotelEntityVm;
 }
 
+// Todo there are some harcoded styles move them to class styles
 export const HotelCard = (props: Props) => {
   const {hotel} = props;
 
@@ -236,6 +265,7 @@ export const HotelCard = (props: Props) => {
         <CardMedia
           image={hotel.picture}
           title={hotel.name}
+          style={{height: 0 , paddingTop: '56.25%'}}
         />
         <Typography variant="subtitle1" gutterBottom>
           {hotel.shortDescription}
@@ -259,6 +289,70 @@ export const HotelCard = (props: Props) => {
 
 ```
 npm start
+```
+
+- Not bad we got a nice card but no hotel picture, that is 
+because:
+
+a. We are not running our data mock server.
+
+b. Picture are referenced using a relative path we need to 
+add server prefix.
+
+- To run the mock server go to the root folder of this repo
+cd on _backed_ ensure you have previously executed _npm install_
+under that folder and run:
+
+```bash
+npm run mock-server
+```
+
+- We have to add now the server prefix to the pictures to
+be displayed:
+
+  - We will define this prefix under _./src/core/const.ts_
+  - On a real development instead of harcoding _http://localhost:3000_
+  we would just point to environment variables.
+  - Then we will expose it under the _common/inded.ts_ and update this in the 
+  viewmodel (later on we will update this on the hotel Entity mapper)
+
+_./src/core/const.ts_
+
+```typescript
+export const basePicturesUrl = 'http://localhost:3000'
+```
+_./src/core/index.ts_
+
+```diff
+export * from './routes';
+export * from './sessionContext';
++ export * from './const';
+```
+_./src/pods/hotel-collection/hotel-collection.container.tsx_
+
+```diff
++ import {basePicturesUrl} from 'core';
+
+export const createMockHotelCollection = () : HotelEntityVm[] => ([
+{
+  "id": "0248058a-27e4-11e6-ace6-a9876eff01b3",
+-  "picture": "/thumbnails/50947_264_t.jpg",    
++  "picture": `${basePicturesUrl}/thumbnails/50947_264_t.jpg`,    
+  "name": "Motif Seattle",
+  "description": "With a stay at Motif Seattle, you will be centrally located in Seattle, steps from 5th Avenue Theater and minutes from Pike Place Market. This 4-star hotel is within", 
+  "address": "1415 5th Ave",
+  "rating": 4,  
+},
+{
+  "id": "024bd61a-27e4-11e6-ad95-35ed01160e57",
++  "picture": `${basePicturesUrl}/thumbnails/16673_260_t.jpg`,      
+-  "picture": "/thumbnails/16673_260_t.jpg",
+  "name": "The Westin Seattle",
+  "address": "1900 5th Ave",
+  "description": "With a stay at The Westin Seattle, you'll be centrally laocated in Seattle, steps from Westlake Center and minutes from Pacific Place. This 4-star hotel is close to",
+  "rating": 4,
+},
+]);
 ```
 
 # Excercises

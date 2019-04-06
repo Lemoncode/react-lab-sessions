@@ -42,6 +42,7 @@ export const HotelCard = (props: Props) => {
         <CardMedia
           image={hotel.picture}
           title={hotel.name}
+          style={{height: 0 , paddingTop: '56.25%'}}
         />
         <Typography variant="subtitle1" gutterBottom>
           {hotel.description}

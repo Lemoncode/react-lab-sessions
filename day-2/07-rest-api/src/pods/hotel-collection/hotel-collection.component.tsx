@@ -1,7 +1,17 @@
 import * as React from "react";
 
-export const HotelCollectionComponent = () => {
+ import {HotelEntityVm} from './hotel-collection.vm';
+ import {HotelCard} from './components/hotel-card.component' // on next step we will create this component
+
+ interface Props {
+  hotelCollection : HotelEntityVm[]
+ }
+
+
+  export const HotelCollectionComponent = (props : Props) => {  
+    const {hotelCollection} = props;
+  
   return (
-    <h1>Hello from collection component</h1>
+    <HotelCard hotel={hotelCollection[0]}/>
   );
 }
