@@ -345,7 +345,7 @@ export const createMockHotelCollection = () : HotelEntityVm[] => ([
 },
 {
   "id": "024bd61a-27e4-11e6-ad95-35ed01160e57",
-+  "picture": `${basePicturesUrl}/thumbnails/16673_260_t.jpg`,      
++  "picture": `${basePicturesUrl}/thumbnails/16673_260_t.jpg`,     
 -  "picture": "/thumbnails/16673_260_t.jpg",
   "name": "The Westin Seattle",
   "address": "1900 5th Ave",
@@ -353,6 +353,31 @@ export const createMockHotelCollection = () : HotelEntityVm[] => ([
   "rating": 4,
 },
 ]);
+```
+
+- Great we a single hotel being displayed, how could
+we get displayed the list of hotels? We only need to 
+add a _map_ sentence to our _hotelCollectionComponent_
+and display as much cards as items we have.
+
+```diff
+interface Props {
+  hotelCollection: HotelEntityVm[];
+}
+
+export const HotelCollectionComponent = (props: Props) => {
+  const { hotelCollection } = props;
+
+-   return <HotelCard hotel={hotelCollection[0]} />;
++ return (
++    <>  
++    {
++       hotelCollection.map((hotel) => <HotelCard hotel={hotel}/>)
++    }
++    </>
++ )
+};
+
 ```
 
 # Excercises
