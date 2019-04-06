@@ -1,7 +1,7 @@
-# 06 Rest api
+# 07 Componetize
 
-In this example we are going to consume data from a remote rest api. We will get
-from a remote rest-api a list containing hotel informatin.
+In this examnple we are going to display an hotel list, we will create viemodels plus mock data to isolate 
+us from having to access a rest api, and we are going to componentize the solution.
 
 We will take a startup point sample _/day-2/06-global-data_.
 
@@ -13,10 +13,6 @@ Summary steps:
 - Follow progressive approach, create a viewModel.
 - Build up the layout of a single card showing harcoded data.
 - Build up the layout of a list of cards showing harcoded data.
-- Create an api model.
-- Create an api client.
-- Create a mapper to convert from apiModel to ViewModel.
-- Integrate it on the page.
 
 
 ## Prerequisites
