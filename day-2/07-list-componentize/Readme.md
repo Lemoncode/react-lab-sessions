@@ -360,6 +360,8 @@ we get displayed the list of hotels? We only need to
 add a _map_ sentence to our _hotelCollectionComponent_
 and display as much cards as items we have.
 
+_./src/pods/hotel-collection/hotel-collection.component.tsx_
+
 ```diff
 interface Props {
   hotelCollection: HotelEntityVm[];
@@ -380,6 +382,113 @@ export const HotelCollectionComponent = (props: Props) => {
 
 ```
 
+- Not bad we got the list being displayed, but... it needs some CSS magic to make it look perfect, let's pimp
+a bit the UI.
+
+- Instead of using inline styles we are going to start CSS in JS, let's first configure this for the 
+_HotelCollectionComponent_ (use Hoc to inject styles into the component and add typing for that types
+by adding them to the props interface).
+
+_./src/pods/hotel-collection/hotel-collection.component.tsx_
+
+```diff
+import * as React from "react";
++ import { withStyles, createStyles, WithStyles } from '@material-ui/core/styles';
+import { HotelEntityVm } from "./hotel-collection.vm";
+import { HotelCard } from "./components/hotel-card.component"; // on next step we will create this component
+
+- interface Props {
++ interface Props extends WithStyles<typeof styles> {  
+  hotelCollection: HotelEntityVm[];
+}
+
++ const styles = theme => createStyles({
++ });
+
+- export const HotelCollectionComponent = (props: Props) => {
++ export const HotelCollectionComponentInner = (props: Props) => {  
+  const { hotelCollection } = props;
+
+  return (
+    <>
+      {hotelCollection.map(hotel => (
+        <HotelCard hotel={hotel} />
+      ))}
+    </>
+  );
+};
+
++ export const HotelCollectionComponent = withStyles(styles)(HotelCollectionComponentInner);
+```
+
+- Let's start by adding a flex layout to the list of cards.
+
+```diff
+const styles = theme => createStyles({
++ listLayout: {
++   display: 'flex',
++   flexWrap: 'wrap',
++   justifyContent: 'space-between',
++ }
+});
+    
+
+export const HotelCollectionComponentInner = (props: Props) => {  
+-  const { hotelCollection } = props;
++  const { hotelCollection, classes } = props;
+
+  return (
+-     <>
++     <div className={classes.listLayout}>
+      {hotelCollection.map(hotel => (
+        <HotelCard hotel={hotel} />
+      ))}
+-     </>
++     </div>
+  );
+};
+```
+
+- Let's jump into the card itself and define a card width and height.
+
+_./src/pods/hotel-collection/components/hotel-card.component.tsx_
+
+```diff
++ import { withStyles, createStyles, WithStyles } from '@material-ui/core/styles';
++ import {Theme} from "@material-ui/core/styles";
+
+- interface Props {
++ interface Props extends WithStyles<typeof styles> {    
+  hotel: HotelEntityVm;
+}
+
++ const styles = (theme  : Theme) => createStyles({
++   card: {
++     width: '500px', // rather be rem?
++     marginTop: theme.spacing.unit,
++   },  
++ });
+
+
+- export const HotelCard = (props: Props) => {
++ export const HotelCardInner = (props: Props) => {
+-  const {hotel} = props;
++  const {hotel, classes} = props;
+
+  return (
+-  <Card>
++  <Card className={classes.card}>
+  // (...)
+  </Card>
+)
+}
+
++ export const HotelCard = withStyles(styles)(HotelCardInner);
+```
+
 # Excercises
+
+- Move all the inline styling to CSS in JS.
+- Componentize the card (if not done before).
 
 
