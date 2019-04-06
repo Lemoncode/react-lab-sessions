@@ -215,6 +215,8 @@ export const HotelCollectionContainer = () => {
 
 - Let's add the following imports:
 
+_./src/pods/hotel-collection/hotel-collection.container.tsx_
+
 ```diff
 import {basePicturesUrl} from 'core';
 + import {getHotelCollection, HotelEntityApi} from './hotel-collection.api';
@@ -223,6 +225,8 @@ import {basePicturesUrl} from 'core';
 ```
 
 - Now let's make use of _React.UseEffect_ to call the api when the component is mounted.
+
+_./src/pods/hotel-collection/hotel-collection.container.tsx_
 
 ```diff
 export const HotelCollectionContainer = () => {
@@ -239,9 +243,54 @@ export const HotelCollectionContainer = () => {
     <HotelCollectionComponent hotelCollection={hotelCollection}/>
   );
 }
-
 ```
 
+- We could wrap into a custom hook the loading hotel functinallity:
+
+_./src/pods/hotel-collection/hotel-collection.container.tsx_
+
+```diff
++ const useHotelCollection = () => {
++   const [hotelCollection, setHotelCollection] = React.useState<HotelEntityVm[]>([]);
++
++  const loadHotelCollection = () => 
++    getHotelCollection().then(result =>
++      setHotelCollection(mapFromAToBCollection(mapFromApiToVm, result))
++    );  
++
++  return {hotelCollection, loadHotelCollection};
++ }
+
+export const HotelCollectionContainer = () => {
+-  const [hotelCollection, setHotelCollection] = React.useState<HotelEntityVm[]>([]);
++  const {hotelCollection, loadHotelCollection} = useHotelCollection();
+
+  React.useEffect(() => {
++      loadHotelCollection();
+-    getHotelCollection().then(result =>
+-      setHotelCollection(mapFromAToBCollection(mapFromApiToVm, result))
+-    );
+  }, []);
+
+  return <HotelCollectionComponent hotelCollection={hotelCollection} />;
+};
+```
+
+- Just as a last step we forgot to add a key on each entry of the hotel list:
+
+_./src/pods/hotel-collection/hotel-collection.component.tsx_
+
+```diff
+  return (
+    <div className={classes.listLayout}>
+      {hotelCollection.map(hotel => (
+-         <HotelCard hotel={hotel} />
++         <HotelCard hotel={hotel} key={hotel.id}/>
+      ))}
+    </div>
+  );
+
+```
 
 
 # Excercises
