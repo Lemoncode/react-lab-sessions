@@ -2,7 +2,8 @@ import * as React from 'react';
 import { createStyles, Theme, WithStyles, withStyles } from '@material-ui/core/styles';
 import { TextFieldForm, DropdownForm } from 'common/components';
 import { TextField } from '@material-ui/core';
-
+import Rating from 'material-ui-rating'
+import { HotelEntityVm } from './hotel-edit.vm';
 
 const styles = (theme : Theme) =>
   createStyles({
@@ -14,29 +15,28 @@ const styles = (theme : Theme) =>
   });
 
 interface Props extends WithStyles<typeof styles> {
-
+  hotel : HotelEntityVm;
 }
   
 
 export const HotelEditComponentInner = (props : Props) => {
-  const {classes} = props;
+  const {classes, hotel} = props;
 
   return (
     <div className={classes.formContainer}>
         <TextFieldForm
           label="Name"
           name="login"
-          value={''}
+          value={hotel.name}
           onChange={() => console.log('') }
         /> 
 
-        <div>picture place holder</div>
+        <img src={hotel.picture}/>
 
-        <TextField
-          placeholder="Description"
-          multiline={true}
-          rows={3}
-          rowsMax={4}
+        <Rating 
+          value={hotel.rating}
+          max={5}
+          onChange={(value) => console.log(`rated with value: ${value}`)}
         />
 
         <DropdownForm
@@ -45,6 +45,15 @@ export const HotelEditComponentInner = (props : Props) => {
           onChange="() => console.log('')"
           value=''
           list={[]}
+        />
+
+
+        <TextField
+          placeholder="Description"
+          value={hotel.description}
+          multiline={true}
+          rows={3}
+          rowsMax={4}
         />
 
     </div>
