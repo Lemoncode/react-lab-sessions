@@ -18,6 +18,7 @@ import { withStyles, createStyles, WithStyles } from "@material-ui/core/styles";
 
 interface Props extends WithStyles<typeof styles> {
   hotel: HotelEntityVm;
+  editHotel : (id : string) => void;  
 }
 
 const styles = (theme : Theme)  =>
@@ -29,7 +30,7 @@ const styles = (theme : Theme)  =>
   });
 
 export const HotelCardInner = (props: Props) => {
-  const {hotel, classes} = props;
+  const {hotel, classes, editHotel} = props;
 
   return (
     <Card className={classes.card}>
@@ -62,7 +63,7 @@ export const HotelCardInner = (props: Props) => {
         </div>
       </CardContent>
       <CardActions disableActionSpacing>
-        <IconButton aria-label="Add to favorites">
+        <IconButton aria-label="Add to favorites" onClick={() => editHotel(hotel.id)}>
           <EditIcon />
         </IconButton>
         <IconButton aria-label="Share">

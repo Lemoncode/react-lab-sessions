@@ -5,6 +5,7 @@ import { HotelCard } from "./components/hotel-card.component"; // on next step w
 
 interface Props extends WithStyles<typeof styles> {  
   hotelCollection: HotelEntityVm[];
+  editHotel : (id : string) => void;
 }
 
 const styles = theme => createStyles({
@@ -16,12 +17,12 @@ const styles = theme => createStyles({
   });
 
 export const HotelCollectionComponentInner = (props: Props) => {
-  const { hotelCollection, classes } = props;
+  const { hotelCollection, classes, editHotel } = props;
 
   return (
     <div className={classes.listLayout}>
       {hotelCollection.map(hotel => (
-        <HotelCard hotel={hotel} key={hotel.id}/>
+        <HotelCard hotel={hotel} key={hotel.id} editHotel={editHotel}/>
       ))}
     </div>
   );

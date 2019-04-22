@@ -14,11 +14,15 @@ const appBaseRoutes : BaseRoutes = {
 
 type RouterSwitchRoutes = BaseRoutes;
 
+export const hotelEditRouteParams = {
+  id : 'id',
+}
+
 // We need to create this because in future pages we will include parameters
 // e.g. '/hotel/:userId' this wiyll differ from the link
 export const routerSwitchRoutes : RouterSwitchRoutes =  {
   ...appBaseRoutes,
-  hotelEdit: `/${appBaseRoutes.hotelEdit}/:id`,
+  hotelEdit: `/${appBaseRoutes.hotelEdit}/:${hotelEditRouteParams.id}`,
 }
 
 // https://stackoverflow.com/questions/48215950/exclude-property-from-type
