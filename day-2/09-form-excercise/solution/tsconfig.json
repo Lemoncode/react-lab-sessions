@@ -9,6 +9,8 @@
     "sourceMap": true,
     "noLib": false,
     "suppressImplicitAnyIndexErrors": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,    
     "baseUrl": "./src/",
     "paths": {
       "@layout": ["./layout/*"],
