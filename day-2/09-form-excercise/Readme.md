@@ -14,6 +14,37 @@ form mock to be implemented
 
 ![form mock](./content/form-mock.png)
 
+Form Validations to be implemented:
+
+- Name:
+   - Required field
+  
+- Picture:
+   - Required field
+   - Must be a picture
+   - [bonus] Async validation file exists
+- Rating: 
+   - Required field.
+   - Must be greater than 2.
+- City:
+   - Required field.
+- Description: 
+   - Required filed.
+   - MinLength: 24 Characters.
+   - MaxLenght: 256 Characters.
+
+# Adding testing support
+
+Check this guide:
+
+https://github.com/Lemoncode/jest-testing-by-sample/blob/master/frontend/01%20Add%20config/README.md
+
+You have to setup aliases in Jest as well:
+
+https://www.basefactor.com/configuring-aliases-in-webpack-vs-code-typescript-jest
+
+We will start by testing custom 
+
 
 # Tips / Guide
 

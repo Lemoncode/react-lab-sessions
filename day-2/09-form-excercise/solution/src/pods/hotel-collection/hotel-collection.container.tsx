@@ -24,8 +24,6 @@ export const HotelCollectionContainer = () => {
 
   React.useEffect(() => {
     loadHotelCollection();
-
-    return () => {console.log('do your cleanup here')}
   }, []);
 
   return <HotelCollectionComponent hotelCollection={hotelCollection} />;
