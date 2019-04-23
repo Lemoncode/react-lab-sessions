@@ -1,9 +1,10 @@
 import * as React from 'react';
 import { createStyles, Theme, WithStyles, withStyles } from '@material-ui/core/styles';
 import { TextFieldForm, DropdownForm } from 'common/components';
-import { TextField } from '@material-ui/core';
+import { TextField, Button } from '@material-ui/core';
 import Rating from 'material-ui-rating'
 import { HotelEntityVm } from './hotel-edit.vm';
+import { LookupEntity } from 'core';
 
 const styles = (theme : Theme) =>
   createStyles({
@@ -11,16 +12,20 @@ const styles = (theme : Theme) =>
       display: "flex",
       flexDirection: "column",
       justifyContent: "center"
+    },
+    picture: {
+      maxWidth: "31.25rem"
     }
   });
 
 interface Props extends WithStyles<typeof styles> {
   hotel : HotelEntityVm;
+  cities : LookupEntity[];
 }
   
 
 export const HotelEditComponentInner = (props : Props) => {
-  const {classes, hotel} = props;
+  const {classes, hotel, cities} = props;
 
   return (
     <div className={classes.formContainer}>
@@ -31,7 +36,7 @@ export const HotelEditComponentInner = (props : Props) => {
           onChange={() => console.log('') }
         /> 
 
-        <img src={hotel.picture}/>
+        <img className={classes.picture} src={hotel.picture}/>
 
         <Rating 
           value={hotel.rating}
@@ -40,11 +45,11 @@ export const HotelEditComponentInner = (props : Props) => {
         />
 
         <DropdownForm
-          name=""
+          name="city"
           label="city"
           onChange="() => console.log('')"
-          value=''
-          list={[]}
+          value={hotel.city}
+          list={cities}
         />
 
 
@@ -55,6 +60,8 @@ export const HotelEditComponentInner = (props : Props) => {
           rows={3}
           rowsMax={4}
         />
+
+        <Button  variant="contained" color="primary">Save</Button>
 
     </div>
   );

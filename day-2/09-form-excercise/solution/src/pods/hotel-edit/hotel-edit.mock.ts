@@ -7,4 +7,5 @@ export const hotelMockData : HotelEntityVm = {
   name: 'Hotel Avenue',
   picture: 'http://localhost:3000/thumbnails/50947_264_t.jpg',
   rating: 4,
+  city : "Seattle",
 }

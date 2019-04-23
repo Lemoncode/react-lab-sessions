@@ -11,7 +11,6 @@ interface Props {
   value: string;
   error?: string;
   type?: string;
-  select?: boolean;
   list? : LookupEntity[];
   isDisabled?: boolean;
 }
@@ -25,7 +24,7 @@ const onTextFieldChange = (
 };
 
 export const DropdownForm: React.SFC<Props> = props => {
-  const { name, label, onChange, value, error, type, select, list, isDisabled } = props;
+  const { name, label, onChange, value, error, type, list, isDisabled } = props;
   return (
     <>
       <TextField
@@ -33,17 +32,17 @@ export const DropdownForm: React.SFC<Props> = props => {
         margin="normal"
         value={value}
         type={type}
-        select={select}
+        select={true}
         onChange= {onTextFieldChange(name, onChange)}
         disabled={isDisabled}
       >
         {
-          select ? list.map(
+          list.map(
             collection =>
               <MenuItem key={collection.id} value={collection.value}>
               {collection.value}
             </MenuItem>
-          ) : ""}
+          )}
       </TextField>
       <Typography variant="caption" color="error" gutterBottom>
         {error}

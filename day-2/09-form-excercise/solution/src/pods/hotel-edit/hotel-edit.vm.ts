@@ -5,6 +5,7 @@ export interface HotelEntityVm {
   description : string;
   rating : number;
   address : string;
+  city : string;
 }
 
 export const createDefaultHotel = ()  : HotelEntityVm => ({
@@ -14,4 +15,5 @@ export const createDefaultHotel = ()  : HotelEntityVm => ({
   description: '',
   rating: 3,
   address: '',
+  city: '',
 });
