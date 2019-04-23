@@ -50,7 +50,7 @@ export const HotelEditComponentInner = (props : Props) => {
         <DropdownForm
           name="city"
           label="city"
-          onChange="() => console.log('')"
+          onChange={onFieldUpdate}
           value={hotel.city}
           list={cities}
         />

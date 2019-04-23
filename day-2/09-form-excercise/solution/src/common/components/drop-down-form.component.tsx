@@ -7,7 +7,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 interface Props {
   name: string;
   label: string;
-  onChange: any;
+  onChange: (id: number, value : any) => void;
   value: string;
   error?: string;
   type?: string;
@@ -16,10 +16,7 @@ interface Props {
 }
 
 
-const onTextFieldChange = (
-  fieldId: string,
-  onChange: (fieldId, value) => void
-) => e => {
+const onTextFieldChange = (fieldId: string, onChange: (fieldId, value) => void) => e => {
   onChange(fieldId, e.target.value);
 };
 
