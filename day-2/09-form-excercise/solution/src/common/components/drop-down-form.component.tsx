@@ -7,7 +7,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 interface Props {
   name: string;
   label: string;
-  onChange: (id: number, value : any) => void;
+  onChange: (id: string, value : any) => void;
   value: string;
   error?: string;
   type?: string;

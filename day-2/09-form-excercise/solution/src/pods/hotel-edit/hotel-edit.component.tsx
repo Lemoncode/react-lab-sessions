@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { createStyles, Theme, WithStyles, withStyles } from '@material-ui/core/styles';
-import { TextFieldForm, DropdownForm } from 'common/components';
+import { TextFieldForm, DropdownForm, TextAreaForm } from 'common/components';
 import { TextField, Button } from '@material-ui/core';
 import Rating from 'material-ui-rating';
 import { HotelEntityVm } from './hotel-edit.vm';
@@ -56,12 +56,12 @@ export const HotelEditComponentInner = (props : Props) => {
         />
 
 
-        <TextField
+        <TextAreaForm
           placeholder="Description"
+          name="description"
+          label="description"
           value={hotel.description}
-          multiline={true}
-          rows={3}
-          rowsMax={4}
+          onChange={onFieldUpdate}
         />
 
         <Button  variant="contained" color="primary">Save</Button>
