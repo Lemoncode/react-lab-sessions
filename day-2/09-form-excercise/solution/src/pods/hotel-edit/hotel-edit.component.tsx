@@ -3,7 +3,7 @@ import { createStyles, Theme, WithStyles, withStyles } from '@material-ui/core/s
 import { TextFieldForm, DropdownForm, TextAreaForm } from 'common/components';
 import { TextField, Button } from '@material-ui/core';
 import Rating from 'material-ui-rating';
-import { HotelEntityVm } from './hotel-edit.vm';
+import { HotelEntityVm, HotelFormErrors } from './hotel-edit.vm';
 import { LookupEntity } from 'core';
 import { RatingForm } from 'common/components';
 
@@ -23,11 +23,12 @@ interface Props extends WithStyles<typeof styles> {
   hotel : HotelEntityVm;
   cities : LookupEntity[];
   onFieldUpdate : (id : string, value: any) => void;
+  formErrors : HotelFormErrors;
 }
   
 
 export const HotelEditComponentInner = (props : Props) => {
-  const {classes, hotel, cities, onFieldUpdate} = props;
+  const {classes, hotel, cities, onFieldUpdate, formErrors} = props;
 
   return (
     <div className={classes.formContainer}>
@@ -36,7 +37,9 @@ export const HotelEditComponentInner = (props : Props) => {
           name="name"
           value={hotel.name}
           onChange={onFieldUpdate}
+          error={formErrors.name.errorMessage}
         /> 
+        {/* for multilanguage support rather use formErrors.name.type */}
 
         <img className={classes.picture} src={hotel.picture}/>
 
@@ -45,6 +48,7 @@ export const HotelEditComponentInner = (props : Props) => {
           value={hotel.rating}
           max={5}
           onChange={onFieldUpdate}
+          error={formErrors.rating.errorMessage}
         />
 
         <DropdownForm
@@ -53,6 +57,7 @@ export const HotelEditComponentInner = (props : Props) => {
           onChange={onFieldUpdate}
           value={hotel.city}
           list={cities}
+          error={formErrors.city.errorMessage}
         />
 
 
@@ -62,6 +67,7 @@ export const HotelEditComponentInner = (props : Props) => {
           label="description"
           value={hotel.description}
           onChange={onFieldUpdate}
+          error={formErrors.description.errorMessage}
         />
 
         <Button  variant="contained" color="primary">Save</Button>
