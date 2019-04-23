@@ -3,7 +3,7 @@ import { withRouter, RouteComponentProps } from "react-router-dom";
 import { hotelEditRouteParams } from 'core';
 import { HotelEditComponent } from './hotel-edit.component';
 import { hotelMockData } from './hotel-edit.mock';
-import { createDefaultHotel } from './hotel-edit.vm';
+import { HotelEntityVm, createDefaultHotel } from './hotel-edit.vm';
 import { citiesLookup } from 'core';
 
 interface Props extends RouteComponentProps {}
@@ -17,6 +17,13 @@ const HotelEditContainerInner = (props : Props) => {
   }, [])
 
 
+  const onFieldUpdate = (id : keyof HotelEntityVm, value : any) => {
+    setHotel({
+      ...hotel,
+      [id]: value
+    })
+  } 
+
   const loadHotel = () => {    
     console.log(props.match.params[hotelEditRouteParams.id]);
   }
@@ -27,7 +34,11 @@ const HotelEditContainerInner = (props : Props) => {
 
   return (
     <>
-      <HotelEditComponent hotel={hotel} cities={cities}/>
+      <HotelEditComponent 
+          hotel={hotel} 
+          cities={cities}
+          onFieldUpdate={onFieldUpdate}
+          />
     </>
   )
 }

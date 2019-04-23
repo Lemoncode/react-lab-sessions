@@ -5,7 +5,7 @@ import Typography from "@material-ui/core/Typography/Typography";
 interface Props {
   name: string;
   label: string;
-  onChange: any;
+  onChange: (id : string, value : any) => void;
   value: string;
   error?: string;
   type?: string;

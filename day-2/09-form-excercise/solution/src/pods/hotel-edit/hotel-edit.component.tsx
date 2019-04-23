@@ -2,9 +2,10 @@ import * as React from 'react';
 import { createStyles, Theme, WithStyles, withStyles } from '@material-ui/core/styles';
 import { TextFieldForm, DropdownForm } from 'common/components';
 import { TextField, Button } from '@material-ui/core';
-import Rating from 'material-ui-rating'
+import Rating from 'material-ui-rating';
 import { HotelEntityVm } from './hotel-edit.vm';
 import { LookupEntity } from 'core';
+import { RatingForm } from 'common/components';
 
 const styles = (theme : Theme) =>
   createStyles({
@@ -21,27 +22,29 @@ const styles = (theme : Theme) =>
 interface Props extends WithStyles<typeof styles> {
   hotel : HotelEntityVm;
   cities : LookupEntity[];
+  onFieldUpdate : (id : string, value: any) => void;
 }
   
 
 export const HotelEditComponentInner = (props : Props) => {
-  const {classes, hotel, cities} = props;
+  const {classes, hotel, cities, onFieldUpdate} = props;
 
   return (
     <div className={classes.formContainer}>
         <TextFieldForm
           label="Name"
-          name="login"
+          name="name"
           value={hotel.name}
-          onChange={() => console.log('') }
+          onChange={onFieldUpdate}
         /> 
 
         <img className={classes.picture} src={hotel.picture}/>
 
-        <Rating 
+        <RatingForm 
+          name="rating"
           value={hotel.rating}
           max={5}
-          onChange={(value) => console.log(`rated with value: ${value}`)}
+          onChange={onFieldUpdate}
         />
 
         <DropdownForm
