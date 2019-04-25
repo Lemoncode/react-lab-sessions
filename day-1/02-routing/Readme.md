@@ -125,7 +125,7 @@ That was cool but:
   - Why do we get a hash character in the url? You can make use of react-router _HashHistory_ or _BrowserHistory_ (https://stackoverflow.com/questions/36289683/what-is-the-difference-between-hashhistory-and-browserhistory-in-react-router),
   - I would like to have some link based navigation, how does it work? Let's jump into this.
   - I remember the good old ASP .net days where I had _master pages_ is there a similar concept
-  in React? Yups we will go throug it.
+  in React? Yups we will go through it.
   - What about hardcoding url's... is it considered as a bad practice? Yes let's group them
   in a single place using consts.
 
