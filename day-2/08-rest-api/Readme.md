@@ -1,6 +1,5 @@
 
-# 07 List Componentize
-
+# 08 Rest api
 In this example we are going to display a list of hotels, we will make use of viewmodels and mock
 data to isolate this from building a rest api, then we will componentize the solution
 (container, component, card... breakdown).
