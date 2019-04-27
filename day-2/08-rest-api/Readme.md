@@ -1,6 +1,5 @@
 
-# 07 List Componentize
-
+# 08 Rest api
 In this example we are going to display a list of hotels, we will make use of viewmodels and mock
 data to isolate this from building a rest api, then we will componentize the solution
 (container, component, card... breakdown).
@@ -152,15 +151,16 @@ _./src/pods/hotel-collection/hotel-collection.mapper.ts_
 
 ```typescript
 import {HotelEntityApi} from './hotel-collection.api';
-import {HotelEntityVm} from './hotel-collection.vm';ç
+import {HotelEntityVm} from './hotel-collection.vm';
+import {basePicturesUrl} from 'core';
 
 export const mapFromApiToVm = (apiEntity : HotelEntityApi) : HotelEntityVm => ({
-  id : string;
-  picture : string;
-  name : string;
-  description : string;
-  rating : number;
-  address : string;
+  id : apiEntity.id,
+  picture : `${basePicturesUrl}${apiEntity.thumbNailUrl}`,
+  name : apiEntity.name,
+  description : apiEntity.shortDescription,
+  rating : apiEntity.hotelRating,
+  address : apiEntity.address1,
 });
 ``` 
 
