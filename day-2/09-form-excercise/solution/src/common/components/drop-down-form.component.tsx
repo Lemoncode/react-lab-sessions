@@ -2,21 +2,23 @@ import * as React from "react";
 import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography/Typography";
 import { LookupEntity } from "core/model";
-import MenuItem from '@material-ui/core/MenuItem';
+import MenuItem from "@material-ui/core/MenuItem";
 
 interface Props {
   name: string;
   label: string;
-  onChange: (id: string, value : any) => void;
+  onChange: (id: string, value: any) => void;
   value: string;
   error?: string;
   type?: string;
-  list? : LookupEntity[];
+  list?: LookupEntity[];
   isDisabled?: boolean;
 }
 
-
-const onTextFieldChange = (fieldId: string, onChange: (fieldId, value) => void) => e => {
+const onTextFieldChange = (
+  fieldId: string,
+  onChange: (fieldId, value) => void
+) => e => {
   onChange(fieldId, e.target.value);
 };
 
@@ -30,16 +32,14 @@ export const DropdownForm: React.SFC<Props> = props => {
         value={value}
         type={type}
         select={true}
-        onChange= {onTextFieldChange(name, onChange)}
+        onChange={onTextFieldChange(name, onChange)}
         disabled={isDisabled}
       >
-        {
-          list.map(
-            collection =>
-              <MenuItem key={collection.id} value={collection.value}>
-              {collection.value}
-            </MenuItem>
-          )}
+        {list.map(collection => (
+          <MenuItem key={collection.id} value={collection.id}>
+            {collection.value}
+          </MenuItem>
+        ))}
       </TextField>
       <Typography variant="caption" color="error" gutterBottom>
         {error}
@@ -50,5 +50,5 @@ export const DropdownForm: React.SFC<Props> = props => {
 
 DropdownForm.defaultProps = {
   type: "text",
-  isDisabled: false,
+  isDisabled: false
 };

@@ -4,7 +4,11 @@ import {
   Validators
 } from "lc-form-validation";
 
-import { numberValueIsGreaterThan } from "common/validators";
+import {
+  numberValueIsGreaterThan,
+  stringNotEqualValue
+} from "common/validators";
+import { noCitySelectedLiteral } from "core";
 
 const hotelFormValidationConstraints: ValidationConstraints = {
   fields: {
@@ -17,7 +21,12 @@ const hotelFormValidationConstraints: ValidationConstraints = {
       }
     ],
     address: [{ validator: Validators.required }],
-    city: []
+    city: [
+      {
+        validator: stringNotEqualValue,
+        customParams: { stringToCompare: noCitySelectedLiteral }
+      }
+    ]
   }
 };
 

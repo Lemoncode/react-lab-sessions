@@ -1,24 +1,26 @@
 import { LookupEntity } from "./model";
 
-export const citiesLookup : LookupEntity[] = [
+export const noCitySelectedLiteral = "No city selected";
+
+export const citiesLookup: LookupEntity[] = [
   {
-    id: '',
-    value: 'No city selected',
+    id: noCitySelectedLiteral,
+    value: noCitySelectedLiteral
   },
   {
-    id: 'Seattle',
-    value: 'Seattle',
+    id: "Seattle",
+    value: "Seattle"
   },
   {
-    id: 'Chicago',
-    value: 'Chicago',
+    id: "Chicago",
+    value: "Chicago"
   },
   {
-    id: 'New York',
-    value: 'New York',
+    id: "New York",
+    value: "New York"
   },
   {
-    id: 'California',
-    value: 'California',
-  },
+    id: "California",
+    value: "California"
+  }
 ];
