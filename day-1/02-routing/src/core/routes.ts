@@ -24,6 +24,10 @@ export const routerSwitchRoutes : RouterSwitchRoutes =  {
 // https://stackoverflow.com/questions/48215950/exclude-property-from-type
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>
 
+// When you need to omit more than one entry
+// https://stackoverflow.com/questions/48215950/exclude-property-from-type
+// type OmitAB = Omit<BaseRotues, 'hotelEdit'|"hotelCollection">; // Would remove both 
+// hotelEdit and HotelCollection
 type RoutesLinks = Omit<BaseRoutes, 'hotelEdit'> & {hotelEdit : (id) => string};
 
 // We need to create this because in future pages we will include parameters
