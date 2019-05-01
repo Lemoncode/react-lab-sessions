@@ -243,7 +243,7 @@ _./src/pods/login.component.tsx_
 +    formContainer: {
 +            display: "flex",
 +            flexDirection: "column",
-+            justifyContent: "center"+
++            justifyContent: "center",
 +    }
 +  });
 
