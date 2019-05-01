@@ -42,46 +42,56 @@ npm install lc-form-validation --save
 _./src/common/components/text-field-form.component.tsx_
 
 ```tsx
-import * as React from "react";
-import TextField from "@material-ui/core/TextField";
-import Typography from "@material-ui/core/Typography/Typography";
+import * as React from 'react';
+import TextField from '@material-ui/core/TextField';
+import Typography from '@material-ui/core/Typography/Typography';
 
 interface Props {
   name: string;
   label: string;
-  onChange: any;
+  onChange: (field: string, value) => void;
   value: string;
   error?: string;
   type?: string;
+  onBlur?: (field: string, value) => void;
 }
 
-const defaultProps: Partial<Props> = {
-  type: "text"
+const handleChange = (field: string, onChange) => e => {
+  onChange(field, e.target.value);
 };
 
-const onTextFieldChange = (
-  fieldId: string,
-  onChange: (fieldId, value) => void
-) => e => {
-  onChange(fieldId, e.target.value);
+const handleBlur = (field: string, onBlur) => e => {
+  if (onBlur) {
+    onBlur(field, e.target.value);
+  }
 };
 
-export const TextFieldForm: React.StatelessComponent<Props> = props => {
-  const { name, label, onChange, value, error, type } = props;
-  return (
-    <>
-      <TextField
-        label={label}
-        margin="normal"
-        value={value}
-        type={type}
-        onChange={onTextFieldChange(name, onChange)}
-      />
-      <Typography variant="caption" color="error" gutterBottom>
-        {props.error}
-      </Typography>
-    </>
-  );
+export const TextFieldForm: React.StatelessComponent<Props> = ({
+  name,
+  label,
+  onChange,
+  value,
+  error,
+  type,
+  onBlur,
+}) => (
+  <>
+    <TextField
+      label={label}
+      margin="normal"
+      value={value}
+      type={type}
+      onChange={handleChange(name, onChange)}
+      onBlur={handleBlur(name, onBlur)}
+    />
+    <Typography variant="caption" color="error" gutterBottom={true}>
+      {error}
+    </Typography>
+  </>
+);
+
+TextFieldForm.defaultProps = {
+  type: 'text',
 };
 ```
 

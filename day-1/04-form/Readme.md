@@ -271,7 +271,7 @@ _./src/pods/login/login.component.tsx_
   export const LoginComponentInner = (props: Props) => {
   const { classes, onLogin, LoginEntityVm, onUpdateCredentials} = props;
   
-+  const onTexFieldChange = (fieldId : keyof Credentials) => (e) => {
++  const onTexFieldChange = (fieldId : keyof LoginVm) => (e) => {
 +    onUpdateCredentials(fieldId, e.target.value);
 +  }
 
