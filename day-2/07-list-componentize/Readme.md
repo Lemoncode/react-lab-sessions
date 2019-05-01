@@ -223,8 +223,8 @@ import CardHeader from "@material-ui/core/CardHeader/CardHeader";
 import Avatar from "@material-ui/core/Avatar/Avatar";
 import IconButton from "@material-ui/core/IconButton/IconButton";
 import MoreVertIcon from '@material-ui/icons/MoreVert';
-import EditIcon from '@material-ui/icons/edit';
-import DeleteIcon from '@material-ui/icons/delete';
+import EditIcon from '@material-ui/icons/Edit';
+import DeleteIcon from '@material-ui/icons/Delete';
 import { CardContent, CardMedia, Typography, CardActions } from "@material-ui/core";
 
 interface Props {
@@ -264,7 +264,7 @@ export const HotelCard = (props: Props) => {
           style={{height: 0 , paddingTop: '56.25%'}}
         />
         <Typography variant="subtitle1" gutterBottom>
-          {hotel.shortDescription}
+          {hotel.description}
         </Typography>
       </div>
     </CardContent>
