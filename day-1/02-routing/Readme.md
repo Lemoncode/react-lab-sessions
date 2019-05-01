@@ -98,7 +98,7 @@ _./src/index.tsx_
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 + import { HashRouter, Switch, Route } from 'react-router-dom';
-+ import { LoginPage, HotelCollectionPage } from './pages';
++ import { LoginPage, HotelCollectionPage } from './scenes';
 - import { HelloComponent } from './hello';
 
 ReactDOM.render(
@@ -281,7 +281,7 @@ _./src/scenes/login.page.tsx_
 import * as React from "react"
 import { Link } from "react-router-dom";
 - import {SingleViewLayout} from '../layout';
-import {SingleViewLayout} from 'layout';
++ import {SingleViewLayout} from 'layout';
 ```
 
 - As last step we will remove harcoded routes entries, and wrap all the routes in a const file
