@@ -180,7 +180,7 @@ _./src/layout/centered.layout.tsx_
 import * as React from 'react';
 
 // TODO (next examples): move style to CSS in JS
-export const SingleViewLayout: React.FunctionComponent = (props) => (
+export const CenteredLayout: React.FunctionComponent = (props) => (
   <div style={{    
     display: 'flex',
     flexDirection: 'column',alignItems: 'center',width: '100vw',
@@ -208,15 +208,15 @@ _./src/scenes/login.page.tsx_
 ```diff
 import * as React from "react"
 import { Link } from "react-router-dom";
-+ import {SingleViewLayout} from '../layout';
++ import {CenteredLayout} from '../layout';
 
 export const LoginPage = () =>
 -    <>
-+    <SingleViewLayout>
++    <CenteredLayout>
       <h2>Hello from login Page</h2>
       <Link to="/hotel-collection">Navigate to Hotel Collection</Link>
 -    </>
-+    </SingleViewLayout>
++    </CenteredLayout>
 ```
 
 - Let's run the sample, now we get our loginPage centered.
@@ -261,9 +261,9 @@ Now we need to add some special configuration to our _tsconfig_ (typescript)
     "suppressImplicitAnyIndexErrors": true,
 +    "baseUrl": "./src/",
 +    "paths": {
-+      "@layout": ["./layout/*"],
-+      "@scenes": ["./scenes/*"],
-+      "@core": ["./core/*"]
++      "layout": ["layout"],
++      "scenes": ["scenes"],
++      "core": ["core"]
 +    }    
   },
   "compileOnSave": false,
@@ -280,8 +280,8 @@ _./src/scenes/login.page.tsx_
 ```diff
 import * as React from "react"
 import { Link } from "react-router-dom";
-- import {SingleViewLayout} from '../layout';
-+ import {SingleViewLayout} from 'layout';
+- import {CenteredLayout} from '../layout';
++ import {CenteredLayout} from 'layout';
 ```
 
 - As last step we will remove harcoded routes entries, and wrap all the routes in a const file
@@ -290,6 +290,46 @@ if you have to handle parameters), just to check how this works we will include 
 use in the future (hotel edit).
 
 _./src/core/routes.ts_
+
+```typescript
+import { generatePath } from "react-router";
+import { string } from "prop-types";
+
+interface BaseRoutes {
+  login: string;
+  hotelCollection: string;
+}
+
+const appBaseRoutes: BaseRoutes = {
+  login: '/',
+  hotelCollection: '/hotel-collection',
+}
+
+interface RouterSwitchRoutes extends BaseRoutes {
+  hotelEdit: string;
+} 
+
+// We need to create this because in future pages we will include parameters
+// e.g. '/hotel/:userId' this wiyll differ from the link
+export const routerSwitchRoutes: RouterSwitchRoutes = {
+  ...appBaseRoutes,
+  hotelEdit: `hotel-edit/:id`,
+}
+
+interface RouterLinks extends BaseRoutes {
+  hotelEdit: (id:number) => string; 
+}
+
+// We need to create this because in future pages we will include parameters
+// e.g. 'hotel: (hotelId) => /hotel/{hotelId}' this will differ from the route definition
+export const routerLinks: RouterLinks = {
+  ...appBaseRoutes,
+  hotelEdit: (id) => generatePath(routerSwitchRoutes.hotelEdit, {id})
+}
+```
+
+The tricky option: We have another option to add our additional plumbing, although it adds complexity to our code, you can find more information at https://stackoverflow.com/questions/48215950/exclude-property-from-type 
+Check how this works:
 
 ```typescript
 import { generatePath } from "react-router";
@@ -318,6 +358,7 @@ export const routerSwitchRoutes : RouterSwitchRoutes =  {
 // https://stackoverflow.com/questions/48215950/exclude-property-from-type
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>
 
+//We remove string type 'hotelEdit' from BaseRoutes and add a new function type hotelEdit to it.
 type RoutesLinks = Omit<BaseRoutes, 'hotelEdit'> & {hotelEdit : (id) => string};
 
 // We need to create this because in future pages we will include parameters
@@ -327,6 +368,7 @@ export const routesLinks : RoutesLinks =  {
   hotelEdit: (id) => generatePath(routerSwitchRoutes.hotelEdit, {id}) 
 }
 ```
+Which option do you like best? Let's continue!
 
 - Let's create a barrel.
 
@@ -372,18 +414,18 @@ _./src/scenes/login.page.tsx_
 ```diff
 import * as React from "react"
 import { Link } from "react-router-dom";
-- import {SingleViewLayout} from '../layout';
-+ import {SingleViewLayout} from 'layout';
+- import {CenteredLayout} from '../layout';
++ import {CenteredLayout} from 'layout';
 + import {routesLinks} from 'core';
 
 export const LoginPage = () =>
-    <SingleViewLayout>
+    <CenteredLayout>
       <h2>Hello from login Page</h2>
       <Link 
 +        to={routesLinks.hotelCollection}      
 -        to="/hotel-collection"
       >Navigate to Hotel Collection</Link>
-    </SingleViewLayout>
+    </CenteredLayout>
 ```
 
 _./src/scenes/hotel-collection.page.tsx_

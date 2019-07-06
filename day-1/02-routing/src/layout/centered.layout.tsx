@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 // TODO (next examples): move style to CSS in JS
-export const SingleViewLayout: React.FunctionComponent = (props) => (
+export const CenteredLayout: React.FunctionComponent = (props) => (
   <div style={{    
     display: 'flex',
     flexDirection: 'column',alignItems: 'center',width: '100vw',
