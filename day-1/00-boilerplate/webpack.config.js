@@ -1,5 +1,5 @@
 var HtmlWebpackPlugin = require("html-webpack-plugin");
-var MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const { CheckerPlugin } = require("awesome-typescript-loader");
 var webpack = require("webpack");
 var path = require("path");
 
@@ -10,11 +10,7 @@ module.exports = {
   resolve: {
     extensions: [".js", ".ts", ".tsx"]
   },
-  entry: ["@babel/polyfill", "./main.ts"],
-  output: {
-    path: path.join(basePath, "dist"),
-    filename: "bundle.js"
-  },
+  entry: ["./main.ts"],
   devtool: "source-map",
   devServer: {
     contentBase: "./dist", // Content base
@@ -31,12 +27,9 @@ module.exports = {
         loader: "awesome-typescript-loader",
         options: {
           useBabel: true,
+          useCache: true,
           babelCore: "@babel/core" // needed for Babel v7
         }
-      },
-      {
-        test: /\.css$/,
-        use: [MiniCssExtractPlugin.loader, "css-loader"]
       },
       {
         test: /\.(png|jpg|gif|svg)$/,
@@ -47,16 +40,24 @@ module.exports = {
       }
     ]
   },
+  optimization: {
+    splitChunks: {
+      cacheGroups: {
+        vendor: {
+          chunks: "all",
+          name: "vendor",
+          test: /[\\/]node_modules[\\/]/,
+          enforce: true
+        }
+      }
+    }
+  },
   plugins: [
     //Generate index.html in /dist => https://github.com/ampedandwired/html-webpack-plugin
     new HtmlWebpackPlugin({
       filename: "index.html", //Name of file in ./dist/
-      template: "index.html", //Name of template in ./src
-      hash: true
+      template: "index.html" //Name of template in ./src
     }),
-    new MiniCssExtractPlugin({
-      filename: "[name].css",
-      chunkFilename: "[id].css"
-    })
+    new CheckerPlugin()
   ]
 };

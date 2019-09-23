@@ -15,7 +15,6 @@ Summary steps:
   - Webpack and webpack-dev-server.
   - TypeScript.
   - Babel.
-  - Bootstrap.
 - Setup **[./webpack.config.js](./webpack.config.js)**
 - Create a test JS file.
 - Create a simple HTML file.
@@ -52,10 +51,18 @@ npm install webpack-dev-server --save-dev
 - Let's install a list of plugins and loaders to add capabilities to our webpack configuration (handling <abbr title="Cascading Style Sheets">CSS</abbr>, TypeScript...).
 
 ```bash
-npm install css-loader style-loader file-loader url-loader html-webpack-plugin awesome-typescript-loader mini-css-extract-plugin --save-dev
+npm install file-loader url-loader html-webpack-plugin awesome-typescript-loader  --save-dev
 ```
 
-- Let's add two commands to our **[./package.json](./package.json)**: build and start.
+Loaders:
+
+- file-loader: allows us to handle raw files (e.g. png, jpg).
+- url-loader: allows us to embed raw file in the html/js encoded.
+- html-webpack-plugin: allows us to inject scripts tags in the html.
+- awesome-typescript-loader helper to transpile from ts to js (we will configure it to use babel under the hood), good thing of this loader is that it
+  throws you the errors as well.
+
+* Let's add two commands to our **[./package.json](./package.json)**: build and start.
 
 _[./package.json](./package.json)_
 
@@ -85,26 +92,22 @@ _[./tsconfig.json](./tsconfig.json)_
     "moduleResolution": "node",
     "declaration": false,
     "noImplicitAny": false,
-    "jsx": "react",
     "sourceMap": true,
+    "jsx": "react",
     "noLib": false,
-    "suppressImplicitAnyIndexErrors": true
-  },
-  "compileOnSave": false,
-  "exclude": ["node_modules"]
+    "allowJs": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "baseUrl": "./src/"
+  }
 }
 ```
 
-- Now, we need to transpile ES6 to ES5. Let's install **@babel/cli**, **@babel/core**, **@babel/preset-env** and **@babel/polyfill**.
+- Now, we need to transpile ES6 to ES5. Let's install **@babel/cli**, **@babel/core**, **@babel/preset-env**.
 
 ```bash
-npm install @babel/cli @babel/core @babel/preset-env @babel/polyfill --save-dev
-```
-
-- Let's install webpack _babel_ loader.
-
-```bash
-npm install babel-loader --save-dev
+npm install @babel/cli @babel/core @babel/preset-env --save-dev
 ```
 
 - Babel needs to be configured for it to work. We create **[./.babelrc](./.babelrc)** in the root folder. Later we will see how to put it in **[./webpack.config.js](./webpack.config.js)**. In this example, we use this .babelrc:
@@ -113,14 +116,7 @@ _[./.babelrc](./.babelrc)_
 
 ```json
 {
-  "presets": [
-    [
-      "@babel/preset-env",
-      {
-        "useBuiltIns": "entry"
-      }
-    ]
-  ]
+  "presets": ["@babel/preset-env"]
 }
 ```
 
@@ -130,34 +126,24 @@ _[./package.json](./package.json)_
 
 ```json
 {
-  "name": "reactbysample",
+  "name": "reactlabsessions",
   "version": "1.0.0",
   "description": "In this sample we setup the basic plumbing to \"build\" our project and launch it in a dev server.",
   "main": "index.js",
   "scripts": {
     "start": "webpack-dev-server  --mode development --inline --hot --open",
-    "build": "webpack  --mode development",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "webpack  --mode development"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@babel/cli": "^7.1.2",
-    "@babel/core": "^7.1.2",
-    "@babel/polyfill": "^7.0.0",
-    "@babel/preset-env": "^7.1.0",
     "awesome-typescript-loader": "^5.2.1",
-    "babel-loader": "^8.0.4",
-    "css-loader": "^1.0.0",
-    "file-loader": "^2.0.0",
+    "file-loader": "^4.2.0",
     "html-webpack-plugin": "^3.2.0",
-    "mini-css-extract-plugin": "^0.4.3",
-    "style-loader": "^0.23.1",
-    "typescript": "^3.1.1",
-    "url-loader": "^1.1.1",
-    "webpack": "^4.20.2",
-    "webpack-cli": "^3.1.2",
-    "webpack-dev-server": "^3.1.9"
+    "typescript": "^3.6.3",
+    "url-loader": "^2.1.0",
+    "webpack": "^4.40.2",
+    "webpack-cli": "^3.3.9"
   }
 }
 ```
@@ -205,7 +191,7 @@ _[./webpack.config.js](./webpack.config.js)_
 
 ```javascript
 var HtmlWebpackPlugin = require("html-webpack-plugin");
-var MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const { CheckerPlugin } = require("awesome-typescript-loader");
 var webpack = require("webpack");
 var path = require("path");
 
@@ -216,11 +202,7 @@ module.exports = {
   resolve: {
     extensions: [".js", ".ts", ".tsx"]
   },
-  entry: ["@babel/polyfill", "./main.ts"],
-  output: {
-    path: path.join(basePath, "dist"),
-    filename: "bundle.js"
-  },
+  entry: ["./main.ts"],
   devtool: "source-map",
   devServer: {
     contentBase: "./dist", // Content base
@@ -237,12 +219,9 @@ module.exports = {
         loader: "awesome-typescript-loader",
         options: {
           useBabel: true,
+          useCache: true,
           babelCore: "@babel/core" // needed for Babel v7
         }
-      },
-      {
-        test: /\.css$/,
-        use: [MiniCssExtractPlugin.loader, "css-loader"]
       },
       {
         test: /\.(png|jpg|gif|svg)$/,
@@ -253,17 +232,25 @@ module.exports = {
       }
     ]
   },
+  optimization: {
+    splitChunks: {
+      cacheGroups: {
+        vendor: {
+          chunks: "all",
+          name: "vendor",
+          test: /[\\/]node_modules[\\/]/,
+          enforce: true
+        }
+      }
+    }
+  },
   plugins: [
     //Generate index.html in /dist => https://github.com/ampedandwired/html-webpack-plugin
     new HtmlWebpackPlugin({
       filename: "index.html", //Name of file in ./dist/
-      template: "index.html", //Name of template in ./src
-      hash: true
+      template: "index.html" //Name of template in ./src
     }),
-    new MiniCssExtractPlugin({
-      filename: "[name].css",
-      chunkFilename: "[id].css"
-    })
+    new CheckerPlugin()
   ]
 };
 ```
