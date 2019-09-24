@@ -5,17 +5,18 @@
     "moduleResolution": "node",
     "declaration": false,
     "noImplicitAny": false,
-    "jsx": "react",
     "sourceMap": true,
+    "jsx": "react",
     "noLib": false,
+    "allowJs": true,
     "suppressImplicitAnyIndexErrors": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
     "baseUrl": "./src/",
     "paths": {
-      "@layout": ["./layout/*"],
-      "@scenes": ["./scenes/*"],
-      "@core": ["./core/*"]
+      "layout": ["./layout/"],
+      "scenes": ["./scenes/"],
+      "core": ["./core/"]
     }
-  },
-  "compileOnSave": false,
-  "exclude": ["node_modules"]
+  }
 }
