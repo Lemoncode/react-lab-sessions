@@ -1,4 +1,4 @@
-# 01 Layout
+# 03 Layout
 
 In this sample we are going to learn how to setup material ui, build a modern layout,
 and componentize our components.
@@ -134,10 +134,10 @@ _tsconfig.json_
 
 ```diff
     "paths": {
-      "@layout": ["./layout/*"],
-      "@scenes": ["./scenes/*"],
-      "@core": ["./core/*"],
-+     "@pods": ["./pods/*"]
+      "layout": ["./layout/"],
+      "scenes": ["./scenes/"],
+      "core": ["./core/"],
++     "pods": ["./pods/"]
     }
 ```
 
@@ -235,23 +235,22 @@ _./src/pods/login.component.tsx_
   to inject the CSS in our component)
 
 ```diff
-+ import { createStyles, WithStyles, withStyles } from "@material-ui/core";
++ import { createStyles, makeStyles } from "@material-ui/core";
 
 
-+ const styles = theme =>
-+  createStyles({
-+    formContainer: {
-+            display: "flex",
-+            flexDirection: "column",
-+            justifyContent: "center",
-+    }
-+  });
++ const useStyles = makeStyles({
++  formContainer: {
++    display: "flex",
++    flexDirection: "column",
++    justifyContent: "center"
++  }
++ });
 
-+ interface Props extends WithStyles<typeof styles> {}
++ interface Props {}
 
 - export const LoginComponent = () => {
-+ export const LoginComponentInner = (props : Props) => {
-+ const { classes } = props;
++ export const LoginComponent = (props : Props) => {
++ const { classes } = useStyles(props);
 
   return (
     <>
@@ -271,8 +270,6 @@ _./src/pods/login.component.tsx_
     </>
   );
 };
-
-+ export const LoginComponent = withStyles(styles)(LoginComponentInner);
 ```
 
 > Excercise the loginCard still look to cluttered, let's add a minWidth of 400px or
