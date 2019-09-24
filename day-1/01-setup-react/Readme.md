@@ -81,15 +81,12 @@ export const HelloComponent = () => {
 _[./src/index.tsx](./src/index.tsx)_
 
 ```tsx
-import * as React from 'react';
-import * as ReactDOM from 'react-dom';
+import * as React from "react";
+import * as ReactDOM from "react-dom";
 
-import { HelloComponent } from './hello';
+import { HelloComponent } from "./hello";
 
-ReactDOM.render(
-  <HelloComponent/>,
-  document.getElementById('root')
-);
+ReactDOM.render(<HelloComponent />, document.getElementById("root"));
 ```
 
 - Delete the file _main.ts_ we are not going to need it anymore.
@@ -108,7 +105,7 @@ module.exports = {
    extensions: ['.js', '.ts', '.tsx']
  },
  entry: {
--   app: './index.ts',
+-   app: './main.ts',
 +   app: './index.tsx',
    vendorStyles: [
      '../node_modules/bootstrap/dist/css/bootstrap.css',
