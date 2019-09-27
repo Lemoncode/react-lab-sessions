@@ -2,9 +2,11 @@ import * as React from "react";
 import Card from "@material-ui/core/Card";
 import CardHeader from "@material-ui/core/CardHeader";
 import CardContent from "@material-ui/core/CardContent";
-import TextField from "@material-ui/core/TextField";
+import { TextField } from "common/components/forms";
 import Button from "@material-ui/core/Button";
 import { createStyles, makeStyles } from "@material-ui/core";
+import { Form, Field } from "react-final-form";
+import { LoginEntityVm } from "./login.vm";
 
 const useStyles = makeStyles({
   formContainer: {
@@ -15,23 +17,52 @@ const useStyles = makeStyles({
 });
 
 interface Props {
-  onLogin: () => void;
+  onLogin: (loginInfo: LoginEntityVm) => void;
+  initialLoginInfo: LoginEntityVm;
 }
 
 export const LoginComponent = (props: Props) => {
   const classes = useStyles(props);
-  const { onLogin } = props;
+  const { onLogin, initialLoginInfo } = props;
 
   return (
     <>
       <Card>
         <CardHeader title="Login" />
         <div className={classes.formContainer}>
-          <TextField label="Name" margin="normal" />
-          <TextField label="Password" type="password" margin="normal" />
-          <Button variant="contained" color="primary" onClick={onLogin}>
-            Login
-          </Button>
+          <Form
+            onSubmit={() => console.log("onSubmit")}
+            initialValues={initialLoginInfo}
+            render={({ handleSubmit, submitting, pristine, values }) => (
+              <form onSubmit={handleSubmit} noValidate>
+                <Field
+                  fullWidth
+                  name="login"
+                  component={TextField}
+                  type="text"
+                  label="Name"
+                />
+                <Field
+                  fullWidth
+                  name="password"
+                  component={TextField}
+                  type="password"
+                  label="Password"
+                />
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => onLogin(values)}
+                >
+                  Login
+                </Button>
+                <pre>{JSON.stringify(values, undefined, 2)}</pre>
+                <Field name="login">
+                  {props => <pre>{JSON.stringify(props, undefined, 2)}</pre>}
+                </Field>
+              </form>
+            )}
+          />
         </div>
       </Card>
     </>

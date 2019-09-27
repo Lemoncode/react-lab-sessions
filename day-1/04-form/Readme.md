@@ -117,10 +117,62 @@ npm start
   - We have to bind a value.
   - We have to listen for any change, send the update via callback and from the container component
     set the value so it will flow down an update the textField.
-  - We want to control the state of the form (fields dirty, is valid, etc...), to 
-  do that we will make use of two libraries:
-     - React Final Form: control form state.
-     - Fonk: Form validation libray.
+  - We want to control the state of the form (fields dirty, is valid, etc...), to
+    do that we will make use of two libraries:
+    - React Final Form: control form state.
+    - Fonk: Form validation libray.
+
+- Let's install react-final-form
+
+```bash
+npm install react-final-form --save
+```
+
+---
+
+- Now we need to do some plumbing, in order to integrate material-ui with final form:
+
+  - We could make use of a third partie library: https://github.com/Deadly0/final-form-material-ui,
+    but then you take the risk of keeping it in sync with material-ui current version.
+  - You can create your own wrapper and place it in _common/components_
+
+  _./common/components/forms/text-field.tsx_
+
+```typescript
+import * as React from "react";
+import { FieldRenderProps } from "react-final-form";
+import TextField from "@material-ui/core/TextField";
+
+const TextFieldWrapper: React.SFC<FieldRenderProps> = ({
+  input: { name, onChange, value, ...restInput },
+  meta,
+  ...rest
+}) => {
+  const showError =
+    ((meta.submitError && !meta.dirtySinceLastSubmit) || meta.error) &&
+    meta.touched;
+
+  return (
+    <TextField
+      {...rest}
+      name={name}
+      helperText={showError ? meta.error || meta.submitError : undefined}
+      error={showError}
+      inputProps={restInput}
+      onChange={onChange}
+      value={value}
+    />
+  );
+};
+
+export default TextFieldWrapper;
+```
+
+- And create the barrel
+
+- Now we need to add an alias in tsconfig and webpack config for the common root folder
+
+// \*\*\*
 
 - We will start by creating a viewModel:
 

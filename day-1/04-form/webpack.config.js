@@ -12,6 +12,7 @@ module.exports = {
       // Later on we will add more aliases here
       layout: path.resolve(__dirname, "./src/layout/"),
       scenes: path.resolve(__dirname, "./src/scenes/"),
+      common: path.resolve(__dirname, "./src/common/"),
       core: path.resolve(__dirname, "./src/core/"),
       pods: path.resolve(__dirname, "./src/pods/")
     },
