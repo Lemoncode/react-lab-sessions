@@ -11,7 +11,7 @@ Summary steps:
 - Link the navigation to the login button.
 - Create a viewmodel entity that will store login information.
 - Get the data from the textFields.
-- Crete an api model that will hold credentials.
+- Create an api model that will hold credentials.
 - Create a service that will simulate an async user password validation.
 - Validate login and navigate to hotels list if validation passes.
 - Excercises: add a notification component.
@@ -34,59 +34,37 @@ npm install
 ```
 
 - Let's start by directly allowing the user to navigate to the hotel collection list when he clicks on
-the login button.
+  the login button.
 
 We need to navigate by code (javascript):
-  - This is a candidate to be placed on the container component.
-  - We need to teach how to navigate to the container component, we will do that
-  by using an hoc provided by react router, more about Hoc: https://reactjs.org/docs/higher-order-components.html
 
-- Let's start by getting our navigation typed on props:
+- This is a candidate to be placed on the container component.
+- We need to teach how to navigate to the container component, we will use
+  new react-router 5.1 hooks to navigate.
 
-```diff
-+ import { withRouter, RouteComponentProps } from "react-router-dom";
+> If you are using a legacy version you can do it by using an hoc provided by react router, more about Hoc: https://reactjs.org/docs/higher-order-components.html
 
-+ interface Props extends RouteComponentProps {};
+- Let's start by importing _useHistory_ hook and
+  navigate and add a hanlder in the container to navigate to the login button.
 
-- export const LoginContainer = () => {
-+ export const LoginContainer = (props : Props) => {  
-  return <LoginComponent />
-};
-```
-
-- Let's inject the navigation functionallity to our component:
+_./src/pods/login.container.tsx_
 
 ```diff
-- export const LoginContainer = (props : Props) => {  
-+ export const LoginContainerInner = (props : Props) => {  
-  return <LoginComponent />
-};
-
-+ export const LoginPageContainer = withRouter<Props>(LoginContainerInner);
-```
-- By doing this we get in our property a field called _history_ from that object
-we have access to a method called _push_ that allows us to navigate to other pages.
-
-- Let's define a method that will be passed down as props to the _LoginComponent_
-
-```diff
+import * as React from "react";
 import { LoginComponent } from "./login.component";
++ import { useHistory } from "react-router-dom";
 + import { routesLinks } from "core";
 
-interface Props extends RouteComponentProps {};
-
-export const LoginContainerInner = (props : Props) => {  
-  const {history} = props;
+export const LoginContainer = () => {
++  const history = useHistory();
 
 +  const doLogin = () => {
-+    history.push(routesLinks.hotelCollection);
++     history.push(routesLinks.hotelCollection);
 +  }
 
--   return <LoginComponent />
-+   return <LoginComponent onLogin={doLogin}/>
+-  return <LoginComponent />;
++ return <LoginComponent onLogin={doLogin}/>
 };
-
-+ export const LoginContainer = withRouter<Props>(LoginContainerInner);
 ```
 
 - Now we have to define _onLogin_ property on the _login.component_
@@ -95,7 +73,7 @@ _./src/pods/login/login.component.tsx_
 
 ```diff
 interface Props extends WithStyles<typeof styles> {
-+ onLogin : () => void;  
++ onLogin : () => void;
 }
 ```
 
@@ -104,7 +82,7 @@ _./src/pods/login/login.component.tsx_
 ```diff
 export const LoginComponentInner = (props: Props) => {
 -  const { classes } = props;
-+  const { classes, onLogin } = props;
++  const { onLogin } = props;
 
   return (
     <>
@@ -133,11 +111,12 @@ npm start
 ```
 
 - Now we need to collect the data that the user is entering in the name and password textfields, now it's
-time to really understand how one way data flow works:
+  time to really understand how one way data flow works:
+
   - We cannot just grab the value from the text field.
   - We have to bind a value.
   - We have to listen for any change, send the update via callback and from the container component
-  set the value so it will flow down an update the textField.
+    set the value so it will flow down an update the textField.
 
 - We will start by creating a viewModel:
 
@@ -163,7 +142,7 @@ _./src/pods/login/login.container.tsx_
 + import {LoginEntityVm, createEmptyLogin} from './login.vm'
 // ...
 
-export const LoginContainerInner = (props : Props) => {  
+export const LoginContainerInner = (props : Props) => {
 
 + const [credentials, setCredentials] = React.useState<LoginEntityVm>(createEmptyLogin());
 
@@ -182,19 +161,19 @@ export const LoginContainerInner = (props : Props) => {
 _./src/pods/login/login.container.tsx_
 
 ```diff
-return <LoginComponent 
+return <LoginComponent
           onLogin={doLogin}
 +          credentials={credentials}
         />
 ```
 
 - And we need to received updates from the login component to store them in the
-credentials state.
+  credentials state.
 
 _./src/pods/login/login.container.tsx_
 
 ```diff
-export const LoginContainerInner = (props : Props) => {  
+export const LoginContainerInner = (props : Props) => {
   const [credentials, setCredentials] = React.useState<LoginEntityVm>(createEmptyLogin());
   const {history} = props;
 
@@ -209,17 +188,17 @@ export const LoginContainerInner = (props : Props) => {
 +   });
 + }
 
-  return <LoginComponent 
+  return <LoginComponent
               onLogin={doLogin}
               credentials={credentials}
-+             onUpdateCredentials={onUpdateCredentialsField}              
++             onUpdateCredentials={onUpdateCredentialsField}
               />
 };
 
 ```
 
 - Let's setup this as props on the login component and use destructuring to avoid
-having to add props prefix to every call.
+  having to add props prefix to every call.
 
 _./src/pods/login/login.component.tsx_
 
@@ -229,7 +208,7 @@ _./src/pods/login/login.component.tsx_
 // (...)
 
 interface Props extends WithStyles<typeof styles> {
-  onLogin : () => void; 
+  onLogin : () => void;
 + credentials : LoginEntityVm;
 + onUpdateCredentials : (name : keyof LoginEntityVm, value : string) => void;
 }
@@ -239,26 +218,27 @@ export const LoginComponentInner = (props: Props) => {
 + const { classes, onLogin, credentials, onUpdateCredentials} = props;
 ```
 
-- Now on one hand we need to bind the credentials values to each _TextField_ and 
-subscribe to the _TextField_ on change event to detect changes an update the state.
+- Now on one hand we need to bind the credentials values to each _TextField_ and
+  subscribe to the _TextField_ on change event to detect changes an update the state.
 
 _./src/pods/login/login.component.tsx_
 
 ```diff
-  <TextField 
-    label="Name" 
-    margin="normal" 
+  <TextField
+    label="Name"
+    margin="normal"
 +   value={credentials.login}
   />
-  <TextField 
-    label="Password" 
-    type="password" 
-    margin="normal" 
+  <TextField
+    label="Password"
+    type="password"
+    margin="normal"
 +   value={credentials.password}
   />
 ```
 
 - Let's hook to updates, here we have a challenge:
+
   - TextField expects an event targe value.
   - Our Update field expects name and value.
 
@@ -270,7 +250,7 @@ _./src/pods/login/login.component.tsx_
 ```diff
   export const LoginComponentInner = (props: Props) => {
   const { classes, onLogin, LoginEntityVm, onUpdateCredentials} = props;
-  
+
 +  const onTexFieldChange = (fieldId : keyof LoginVm) => (e) => {
 +    onUpdateCredentials(fieldId, e.target.value);
 +  }
@@ -281,16 +261,16 @@ _./src/pods/login/login.component.tsx_
         <CardHeader title="Login" />
         <CardContent>
           <div className={classes.formContainer}>
-            <TextField 
-              label="Name" 
-              margin="normal" 
+            <TextField
+              label="Name"
+              margin="normal"
               value={credentials.login}
 +             onChange={onTexFieldChange('login')}
             />
-            <TextField 
-              label="Password" 
-              type="password" 
-              margin="normal" 
+            <TextField
+              label="Password"
+              type="password"
+              margin="normal"
               value={credentials.password}
 +            onChange={onTexFieldChange('password')}
             />
@@ -304,8 +284,9 @@ _./src/pods/login/login.component.tsx_
   );
 };
 ```
-- Just to make a quick check and ensure we are on the right track let's add a console.log 
-in our container, just when the user hits the login button and print out the credentials.
+
+- Just to make a quick check and ensure we are on the right track let's add a console.log
+  in our container, just when the user hits the login button and print out the credentials.
 
 _./src/pods/login/login.container.tsx_
 
@@ -323,18 +304,19 @@ npm start
 ```
 
 - Now it's time validate that the credentials are valid, to do that we will create a fake validation
-service and we will simulate that we are making a request to a server (using setTimeout).
+  service and we will simulate that we are making a request to a server (using setTimeout).
 
 _./src/pods/login/api.ts_
 
 ```typescript
 // This is just test code, never hard code user and password in JS this should call a real service
-export const validateCredentials = (user : string, password : string) : Promise<boolean> => 
-  new Promise<boolean>((resolve) => 
-    setTimeout(() => 
-      resolve((user === 'admin' && password === 'test'))
-    , 500)
-  );  
+export const validateCredentials = (
+  user: string,
+  password: string
+): Promise<boolean> =>
+  new Promise<boolean>(resolve =>
+    setTimeout(() => resolve(user === "admin" && password === "test"), 500)
+  );
 ```
 
 - Let's call this api service in our _login.containter.tsx_
@@ -344,18 +326,17 @@ _./src/pods/login/login.container.tsx_
 ```diff
 + import {validateCredentials} from './api';
 
-  const doLogin = () => {    
+  const doLogin = () => {
 -    console.log(credentials);
 +   validateCredentials(credentials.login, credentials.password).then((areValidCredentials) => {
 +       (areValidCredentials) ?
 +           history.push(routesLinks.hotelCollection)
-+       : 
-+      alert('invalid credentials, use admin/test, excercise: display a mui snackbar instead of this alert.') 
++       :
++      alert('invalid credentials, use admin/test, excercise: display a mui snackbar instead of this alert.')
 +       ;
 + });
   }
 ```
-
 
 // pending api service + promise + timeout
 // validate password (admin / test)
@@ -363,7 +344,7 @@ _./src/pods/login/login.container.tsx_
 
 # Excercises
 
-##Excercise 1 
+##Excercise 1
 
 LoginComponent can be componentized, final result should look like:
 
@@ -376,9 +357,7 @@ export const LoginComponentInner = (props: Props) => {
       <Card>
         <CardHeader title="Login" />
         <CardContent>
-          <LoginForm 
-            onLogin={onLogin}
-          />
+          <LoginForm onLogin={onLogin} />
         </CardContent>
       </Card>
     </>
@@ -393,5 +372,3 @@ Replace current alert with a Material ui snackbar:
 - Sample: https://material-ui.com/demos/snackbars/
 
 - Wrap it into a notification control under components.
-
-

@@ -1,5 +1,5 @@
 var HtmlWebpackPlugin = require("html-webpack-plugin");
-var MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const { CheckerPlugin } = require("awesome-typescript-loader");
 var webpack = require("webpack");
 var path = require("path");
 
@@ -8,20 +8,16 @@ var basePath = __dirname;
 module.exports = {
   context: path.join(basePath, "src"),
   resolve: {
-    extensions: [".js", ".ts", ".tsx"],
     alias: {
       // Later on we will add more aliases here
       layout: path.resolve(__dirname, "./src/layout/"),
       scenes: path.resolve(__dirname, "./src/scenes/"),
       core: path.resolve(__dirname, "./src/core/"),
-      pods: path.resolve(__dirname, "./src/pods/"),
-    }
+      pods: path.resolve(__dirname, "./src/pods/")
+    },
+    extensions: [".js", ".ts", ".tsx"]
   },
-  entry: ["@babel/polyfill", "./index.tsx"],
-  output: {
-    path: path.join(basePath, "dist"),
-    filename: "bundle.js"
-  },
+  entry: ["./index.tsx"],
   devtool: "source-map",
   devServer: {
     contentBase: "./dist", // Content base
@@ -38,12 +34,9 @@ module.exports = {
         loader: "awesome-typescript-loader",
         options: {
           useBabel: true,
+          useCache: true,
           babelCore: "@babel/core" // needed for Babel v7
         }
-      },
-      {
-        test: /\.css$/,
-        use: [MiniCssExtractPlugin.loader, "css-loader"]
       },
       {
         test: /\.(png|jpg|gif|svg)$/,
@@ -54,16 +47,24 @@ module.exports = {
       }
     ]
   },
+  optimization: {
+    splitChunks: {
+      cacheGroups: {
+        vendor: {
+          chunks: "all",
+          name: "vendor",
+          test: /[\\/]node_modules[\\/]/,
+          enforce: true
+        }
+      }
+    }
+  },
   plugins: [
     //Generate index.html in /dist => https://github.com/ampedandwired/html-webpack-plugin
     new HtmlWebpackPlugin({
       filename: "index.html", //Name of file in ./dist/
-      template: "index.html", //Name of template in ./src
-      hash: true
+      template: "index.html" //Name of template in ./src
     }),
-    new MiniCssExtractPlugin({
-      filename: "[name].css",
-      chunkFilename: "[id].css"
-    })
+    new CheckerPlugin()
   ]
 };
