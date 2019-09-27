@@ -117,6 +117,10 @@ npm start
   - We have to bind a value.
   - We have to listen for any change, send the update via callback and from the container component
     set the value so it will flow down an update the textField.
+  - We want to control the state of the form (fields dirty, is valid, etc...), to 
+  do that we will make use of two libraries:
+     - React Final Form: control form state.
+     - Fonk: Form validation libray.
 
 - We will start by creating a viewModel:
 
