@@ -31,7 +31,7 @@ export const LoginComponent = (props: Props) => {
         <CardHeader title="Login" />
         <div className={classes.formContainer}>
           <Form
-            onSubmit={() => console.log("onSubmit")}
+            onSubmit={(values) => onLogin(values)}
             initialValues={initialLoginInfo}
             render={({ handleSubmit, submitting, pristine, values }) => (
               <form onSubmit={handleSubmit} noValidate>
@@ -50,9 +50,9 @@ export const LoginComponent = (props: Props) => {
                   label="Password"
                 />
                 <Button
+                  type="submit"
                   variant="contained"
                   color="primary"
-                  onClick={() => onLogin(values)}
                 >
                   Login
                 </Button>

@@ -128,15 +128,13 @@ npm start
 npm install react-final-form --save
 ```
 
----
-
 - Now we need to do some plumbing, in order to integrate material-ui with final form:
 
   - We could make use of a third partie library: https://github.com/Deadly0/final-form-material-ui,
     but then you take the risk of keeping it in sync with material-ui current version.
   - You can create your own wrapper and place it in _common/components_
 
-  _./common/components/forms/text-field.tsx_
+_./common/components/forms/text-field.tsx_
 
 ```typescript
 import * as React from "react";
@@ -170,11 +168,40 @@ export default TextFieldWrapper;
 
 - And create the barrel
 
+_./common/components/forms/index.tsx_
+
+```typescript
+export * from "./text-field";
+```
+
 - Now we need to add an alias in tsconfig and webpack config for the common root folder
 
-// \*\*\*
+_./tsconfig_
 
-- We will start by creating a viewModel:
+```diff
+    "paths": {
+      "layout": ["./layout/"],
+      "scenes": ["./scenes/"],
++      "common": ["./common/"],
+      "core": ["./core/"],
+      "pods": ["./pods/"]
+    }
+```
+
+_./webpack.config.js_
+
+```diff
+    alias: {
+      // Later on we will add more aliases here
+      layout: path.resolve(__dirname, "./src/layout/"),
+      scenes: path.resolve(__dirname, "./src/scenes/"),
++      common: path.resolve(__dirname, "./src/common/"),
+      core: path.resolve(__dirname, "./src/core/"),
+      pods: path.resolve(__dirname, "./src/pods/")
+    },
+```
+
+- Tiem to worry about the data, let's create a viewModel:
 
 _./src/pods/login.vm.ts_
 
@@ -190,67 +217,29 @@ export const createEmptyLogin = (): LoginEntityVm => ({
 });
 ```
 
-- We will store current login information in the container state.
+- We will store initial login information in the container state, and pass it
+  down to the login component.
 
 _./src/pods/login/login.container.tsx_
 
 ```diff
-+ import {LoginEntityVm, createEmptyLogin} from './login.vm'
-// ...
+import * as React from "react";
+import { LoginComponent } from "./login.component";
+import { useHistory } from "react-router-dom";
+import { routesLinks } from "core";
++ import { createEmptyLogin, LoginEntityVm } from "./login.vm";
 
-export const LoginContainerInner = (props : Props) => {
+export const LoginContainer = () => {
+  const history = useHistory();
++  const [initialLogin] = React.useState<LoginEntityVm>(createEmptyLogin());
 
-+ const [credentials, setCredentials] = React.useState<LoginEntityVm>(createEmptyLogin());
-
-  const {history} = props;
-
-  const doLogin = () => {
+  const doLogin = (loginInfo: LoginEntityVm) => {
+    console.log(loginInfo);
     history.push(routesLinks.hotelCollection);
-  }
+  };
 
-  return <LoginComponent onLogin={doLogin}/>
++  return <LoginComponent onLogin={doLogin} initialLoginInfo={initialLogin} />;
 };
-```
-
-- We need to pass down credentials to the login component:
-
-_./src/pods/login/login.container.tsx_
-
-```diff
-return <LoginComponent
-          onLogin={doLogin}
-+          credentials={credentials}
-        />
-```
-
-- And we need to received updates from the login component to store them in the
-  credentials state.
-
-_./src/pods/login/login.container.tsx_
-
-```diff
-export const LoginContainerInner = (props : Props) => {
-  const [credentials, setCredentials] = React.useState<LoginEntityVm>(createEmptyLogin());
-  const {history} = props;
-
-  const doLogin = () => {
-    history.push(routesLinks.hotelCollection);
-  }
-
-+ const onUpdateCredentialsField = (name, value) => {
-+   setCredentials({
-+     ...credentials,
-+     [name]: value,
-+   });
-+ }
-
-  return <LoginComponent
-              onLogin={doLogin}
-              credentials={credentials}
-+             onUpdateCredentials={onUpdateCredentialsField}
-              />
-};
-
 ```
 
 - Let's setup this as props on the login component and use destructuring to avoid
@@ -265,104 +254,96 @@ _./src/pods/login/login.component.tsx_
 
 interface Props extends WithStyles<typeof styles> {
   onLogin : () => void;
-+ credentials : LoginEntityVm;
-+ onUpdateCredentials : (name : keyof LoginEntityVm, value : string) => void;
++ initialLoginInfo : LoginEntityVm;
 }
 
 export const LoginComponentInner = (props: Props) => {
 -   const { classes, onLogin } = props;
-+ const { classes, onLogin, credentials, onUpdateCredentials} = props;
++ const { classes, onLogin, initialLoginInfo} = props;
 ```
 
-- Now on one hand we need to bind the credentials values to each _TextField_ and
-  subscribe to the _TextField_ on change event to detect changes an update the state.
+- Let's add react final form _FORM_ into the login Component
 
 _./src/pods/login/login.component.tsx_
 
 ```diff
-  <TextField
-    label="Name"
-    margin="normal"
-+   value={credentials.login}
-  />
-  <TextField
-    label="Password"
-    type="password"
-    margin="normal"
-+   value={credentials.password}
-  />
-```
-
-- Let's hook to updates, here we have a challenge:
-
-  - TextField expects an event targe value.
-  - Our Update field expects name and value.
-
-  We will add a helper method and make use of curry to inform the field name (there are
-  other tricks like adding a name to the component and pass there the Id of the field).
-
-_./src/pods/login/login.component.tsx_
-
-```diff
-  export const LoginComponentInner = (props: Props) => {
-  const { classes, onLogin, LoginEntityVm, onUpdateCredentials} = props;
-
-+  const onTexFieldChange = (fieldId : keyof LoginVm) => (e) => {
-+    onUpdateCredentials(fieldId, e.target.value);
-+  }
+export const LoginComponent = (props: Props) => {
+  const classes = useStyles(props);
 
   return (
     <>
       <Card>
         <CardHeader title="Login" />
-        <CardContent>
-          <div className={classes.formContainer}>
-            <TextField
-              label="Name"
-              margin="normal"
-              value={credentials.login}
-+             onChange={onTexFieldChange('login')}
-            />
-            <TextField
-              label="Password"
-              type="password"
-              margin="normal"
-              value={credentials.password}
-+            onChange={onTexFieldChange('password')}
-            />
-            <Button variant="contained" color="primary" onClick={onLogin}>
-              Login
-            </Button>
-          </div>
-        </CardContent>
+        <div className={classes.formContainer}>
++         <Form
++            onSubmit={(values) => onLogin(values)}
++            initialValues={initialLoginInfo}
++            render={({ handleSubmit, submitting, pristine, values }) => (
+              <TextField label="Name" margin="normal" />
+              <TextField label="Password" type="password" margin="normal" />
+-              <Button variant="contained" color="primary">
++              <Button type="submit" variant="contained" color="primary">
+                Login
+              </Button>
++              </form>
++            )}/>
+        </div>
       </Card>
     </>
   );
 };
 ```
 
-- Just to make a quick check and ensure we are on the right track let's add a console.log
-  in our container, just when the user hits the login button and print out the credentials.
-
-_./src/pods/login/login.container.tsx_
+- Let's point to the ReactFinalFrom wrapper TextFields and include binding
+  information.
 
 ```diff
-  const doLogin = () => {
-+    console.log(credentials);
-    history.push(routesLinks.hotelCollection);
-  }
+import CardContent from "@material-ui/core/CardContent";
+- import TextField from "@material-ui/core/TextField";
++ import { TextField } from "common/components/forms";
 ```
 
-- Le'ts give a try:
+```diff
+-     <TextField label="Name" margin="normal" />
++      <Field
++        fullWidth
++        name="login"
++        component={TextField}
++        type="text"
++        label="Name"
++      />
 
-```bash
-npm start
+-    <TextField label="Password" type="password" margin="normal" />
++      <Field
++        fullWidth
++        name="password"
++        component={TextField}
++        type="password"
++        label="Password"
++      />
+```
+
+- Let's add some debugging info:
+
+```diff
+      <Button
+        type="submit"
+        variant="contained"
+        color="primary"
+      >
+        Login
+      </Button>
++      <pre>{JSON.stringify(values, undefined, 2)}</pre>
++      <Field name="login">
++        {props => <pre>{JSON.stringify(props, undefined, 2)}</pre>}
++      </Field>
+    </form>
 ```
 
 - Now it's time validate that the credentials are valid, to do that we will create a fake validation
   service and we will simulate that we are making a request to a server (using setTimeout).
 
-_./src/pods/login/api.ts_
+_./src/pods/login.api.ts_
 
 ```typescript
 // This is just test code, never hard code user and password in JS this should call a real service
@@ -394,9 +375,6 @@ _./src/pods/login/login.container.tsx_
   }
 ```
 
-// pending api service + promise + timeout
-// validate password (admin / test)
-// Excercises, toast not valid user password
 
 # Excercises
 
