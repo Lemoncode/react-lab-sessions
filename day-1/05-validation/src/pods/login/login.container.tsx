@@ -1,76 +1,25 @@
 import * as React from "react";
-import { withRouter, RouteComponentProps } from "react-router-dom";
 import { LoginComponent } from "./login.component";
+import { useHistory } from "react-router-dom";
 import { routesLinks } from "core";
-import {
-  LoginEntity,
-  createEmptyLogin,
-  LoginFormErrors,
-  createDefaultLoginFormErrors
-} from "./login.vm";
-import { validateCredentials } from "./api";
-import { loginFormValidation } from "./login.validation";
+import { createEmptyLogin, LoginEntityVm } from "./login.vm";
+import { validateCredentials } from "./login.api";
 
-interface Props extends RouteComponentProps {}
+export const LoginContainer = () => {
+  const history = useHistory();
+  const [initialLogin] = React.useState<LoginEntityVm>(createEmptyLogin());
 
-export const LoginContainerInner = (props: Props) => {
-  const [loginFormErrors, setLoginFormErrors] = React.useState<LoginFormErrors>(
-    createDefaultLoginFormErrors()
-  );
-
-  const [credentials, setCredentials] = React.useState<LoginEntity>(
-    createEmptyLogin()
-  );
-  const { history } = props;
-
-  // TODO: Excercise refactor this method follow SRP
-  const doLogin = () => {
-    loginFormValidation.validateForm(credentials).then(formValidationResult => {
-      if (formValidationResult.succeeded) {
-        validateCredentials(credentials.login, credentials.password).then(
-          areValidCredentials => {
-            areValidCredentials
-              ? history.push(routesLinks.hotelCollection)
-              : alert(
-                  "invalid credentials, use admin/test, excercise: display a mui snackbar instead of this alert."
-                );
-          }
-        );
-      } else {
-        alert("error, review the fields");
-        const updatedLoginFormErrors = {
-          ...loginFormErrors,
-          ...formValidationResult.fieldErrors
-        };
-        setLoginFormErrors(updatedLoginFormErrors);
+  const doLogin = (loginInfo: LoginEntityVm) => {
+    validateCredentials(loginInfo.login, loginInfo.password).then(
+      areValidCredentials => {
+        areValidCredentials
+          ? history.push(routesLinks.hotelCollection)
+          : alert(
+              "invalid credentials, use admin/test, excercise: display a mui snackbar instead of this alert."
+            );
       }
-    });
+    );
   };
 
-  const onUpdateCredentialsField = (name, value) => {
-    setCredentials({
-      ...credentials,
-      [name]: value
-    });
-
-    loginFormValidation
-      .validateField(credentials, name, value)
-      .then(fieldValidationResult => {
-        setLoginFormErrors({
-          ...loginFormErrors,
-          [name]: fieldValidationResult
-        });
-      });
-  };
-
-  return (
-    <LoginComponent
-      onLogin={doLogin}
-      credentials={credentials}
-      onUpdateCredentials={onUpdateCredentialsField}
-      loginFormErrors={loginFormErrors}
-    />
-  );
+  return <LoginComponent onLogin={doLogin} initialLoginInfo={initialLogin} />;
 };
-
-export const LoginContainer = withRouter<Props>(LoginContainerInner);

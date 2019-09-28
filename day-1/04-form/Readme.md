@@ -139,9 +139,9 @@ _./common/components/forms/text-field.tsx_
 ```typescript
 import * as React from "react";
 import { FieldRenderProps } from "react-final-form";
-import TextField from "@material-ui/core/TextField";
+import TextFieldMui from "@material-ui/core/TextField";
 
-const TextFieldWrapper: React.SFC<FieldRenderProps> = ({
+export const TextField: React.SFC<FieldRenderProps<any, any>> = ({
   input: { name, onChange, value, ...restInput },
   meta,
   ...rest
@@ -151,19 +151,17 @@ const TextFieldWrapper: React.SFC<FieldRenderProps> = ({
     meta.touched;
 
   return (
-    <TextField
+    <TextFieldMui
       {...rest}
       name={name}
-      helperText={showError ? meta.error || meta.submitError : undefined}
       error={showError}
       inputProps={restInput}
       onChange={onChange}
       value={value}
+      helperText={showError ? meta.error.message : ""}
     />
   );
 };
-
-export default TextFieldWrapper;
 ```
 
 - And create the barrel
@@ -374,7 +372,6 @@ _./src/pods/login/login.container.tsx_
 + });
   }
 ```
-
 
 # Excercises
 

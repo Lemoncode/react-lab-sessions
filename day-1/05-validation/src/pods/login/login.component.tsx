@@ -2,70 +2,77 @@ import * as React from "react";
 import Card from "@material-ui/core/Card";
 import CardHeader from "@material-ui/core/CardHeader";
 import CardContent from "@material-ui/core/CardContent";
-import TextField from "@material-ui/core/TextField";
+import { TextField } from "common/components/forms";
 import Button from "@material-ui/core/Button";
-import { createStyles, WithStyles, withStyles } from "@material-ui/core";
-import { LoginEntity as LoginEntityVm, LoginFormErrors } from "./login.vm";
-import { TextFieldForm } from "common/components";
+import { createStyles, makeStyles } from "@material-ui/core";
+import { Form, Field } from "react-final-form";
+import { LoginEntityVm } from "./login.vm";
+import { formValidation } from "./login.validation";
 
-const styles = theme =>
-  createStyles({
-    formContainer: {
-      display: "flex",
-      flexDirection: "column",
-      justifyContent: "center"
-    }
-  });
+const useStyles = makeStyles({
+  formContainer: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center"
+  }
+});
 
-interface Props extends WithStyles<typeof styles> {
-  onLogin: () => void;
-  credentials: LoginEntityVm;
-  onUpdateCredentials: (name: keyof LoginEntityVm, value: string) => void;
-  loginFormErrors: LoginFormErrors;
+interface Props {
+  onLogin: (loginInfo: LoginEntityVm) => void;
+  initialLoginInfo: LoginEntityVm;
 }
 
-export const LoginComponentInner = (props: Props) => {
-  const {
-    classes,
-    onLogin,
-    credentials,
-    onUpdateCredentials,
-    loginFormErrors
-  } = props;
-
-  const onTexFieldChange = (fieldId: keyof LoginEntityVm) => e => {
-    onUpdateCredentials(fieldId, e.target.value);
-  };
+export const LoginComponent = (props: Props) => {
+  const classes = useStyles(props);
+  const { onLogin, initialLoginInfo } = props;
 
   return (
     <>
       <Card>
         <CardHeader title="Login" />
-        <CardContent>
-          <div className={classes.formContainer}>
-            <TextFieldForm
-              label="Name"
-              name="login"
-              value={credentials.login}
-              onChange={onUpdateCredentials}
-              error={loginFormErrors.login.errorMessage}
-            />
-            <TextFieldForm
-              label="Password"
-              type="password"
-              name="password"
-              value={credentials.password}
-              onChange={onUpdateCredentials}
-              error={loginFormErrors.password.errorMessage}
-            />
-            <Button variant="contained" color="primary" onClick={onLogin}>
-              Login
-            </Button>
-          </div>
-        </CardContent>
+        <div className={classes.formContainer}>
+          <Form
+            onSubmit={values => onLogin(values)}
+            validate={values =>
+              formValidation
+                .validateForm(values)
+                .then(({ fieldErrors }) => fieldErrors)
+            }
+            initialValues={initialLoginInfo}
+            render={({ handleSubmit, submitting, pristine, values }) => (
+              <form onSubmit={handleSubmit} noValidate>
+                <Field
+                  fullWidth
+                  name="login"
+                  component={TextField}
+                  type="text"
+                  label="Name"
+                  validate={(value, _, meta) =>
+                    formValidation.validateField(meta.name, value)
+                  }
+                />
+                <Field
+                  fullWidth
+                  name="password"
+                  component={TextField}
+                  type="password"
+                  label="Password"
+                  validate={(value, _, meta) =>
+                    formValidation.validateField(meta.name, value)
+                  }
+                />
+                <Button type="submit" variant="contained" color="primary">
+                  Login
+                </Button>
+                <pre>{JSON.stringify(values, undefined, 2)}</pre>
+                <Field name="login">
+                  {props => <pre>{JSON.stringify(props, undefined, 2)}</pre>}
+                </Field>
+              </form>
+            )}
+          />
+        </div>
       </Card>
     </>
   );
 };
-
-export const LoginComponent = withStyles(styles)(LoginComponentInner);
