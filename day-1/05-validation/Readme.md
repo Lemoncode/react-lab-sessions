@@ -68,7 +68,7 @@ export const formValidation = createFormValidation(validationSchema);
 _./src/pods/login/login.component.ts_
 
 ```typescript
-import { formValidation } from "./src/pods/login/login.validation.ts";
+import { formValidation } from "./login.validation.ts";
 ```
 
 _./src/pods/login/login.component.ts_
@@ -97,129 +97,33 @@ _./src/pods/login/login.component.ts_
     />
 ```
 
----
-
-- Let's pass the _loginFormErrors_ to the login component.
-
-* We have got the container ready, let's jump into the component side.
-
-We will start by adding _loginFormErrors_ to the component props.
-
-_./src/pods/login.component.tsx_
-
-```diff
-interface Props extends WithStyles<typeof styles> {
-  onLogin: () => void;
-  credentials: LoginEntityVm;
-  onUpdateCredentials: (name: keyof LoginEntityVm, value: string) => void;
-+ loginFormErrors: LoginFormErrors;
-}
-```
-
-- Now let's replace the TextField we were using with our new TextFieldform wrapper
-  (adds validation error information).
-
-_./src/pods/login.component.tsx_
-
-```diff
-+ import { TextFieldForm } from 'common/components';
-```
-
-- Let's replace the TextFieldForm entries with the wrapper we have created (includes displaying validation errors).
-
-_./src/pods/login.component.tsx_
-
-```diff
-export const LoginComponentInner = (props: Props) => {
-  const { classes,
-          onLogin,
-          credentials,
-          onUpdateCredentials,
-+          loginFormErrors
-         } = props;
-```
-
-The wrapper that we are going to include alreadty implements an OnChange wrapper.
-
-```diff
--  const onTexFieldChange = (fieldId: keyof LoginEntityVm) => e => {
--    onUpdateCredentials(fieldId, e.target.value);
--  };
-
-```
-
-```diff
--            <TextField
-+            <TextFieldForm
-              label="Name"
--              margin="normal"
-              value={credentials.login}
-+             name="login"
--              onChange={onTexFieldChange("login")}
-+             onChange={onUpdateCredentials}
-+             error={loginFormErrors.login.errorMessage}
-            />
--            <TextField
-+            <TextFieldForm
-              label="Password"
-              type="password"
-+             name="password"
--              margin="normal"
-              value={credentials.password}
--              onChange={onTexFieldChange('password')}
-+        onChange={onUpdateCredentials}
-+        error={loginFormErrors.password.errorMessage}
-            />
-```
-
-- Let's give a try:
+- Let's run the example.
 
 ```bash
 npm start
 ```
 
-- And let's add an alert (Excercise and a notification) when the user clicks and the form all the fields are valid.
+- Nice if we enter info on a field, clean it up and jump to another field we get inline error messages,
+  BUT we want to execute all the validations when we click on the login button, let's do that
 
-_./src/pods/login.container.tsx_
-
-```diff
-  const doLogin = () => {
-+    loginFormValidation.validateForm(credentials).then(formValidationResult => {
-+      if (formValidationResult.succeeded) {
-        validateCredentials(credentials.login, credentials.password).then(
-          areValidCredentials => {
-            areValidCredentials
-              ? history.push(routesLinks.hotelCollection)
-              : alert(
-                  "invalid credentials, use admin/test, excercise: display a mui snackbar instead of this alert."
-                );
-          }
-        );
-+      } else {
-+        alert("error, review the fields");
-+        const updatedLoginFormErrors = {
-+          ...loginFormErrors,
-+          ...formValidationResult.fieldErrors
-+        };
-+        setLoginFormErrors(updatedLoginFormErrors);
-+      }
-+    });
-  };
-```
-
-- Now let's validate all fields when the user presses submit:
+_./src/pods/login/login.component.ts_
 
 ```diff
-  <Form
-    onSubmit={values => onLogin(values)}
+        <Form
+          onSubmit={values => onLogin(values)}
+          initialValues={initialLoginInfo}
 +         validate={values =>
-+        formValidation
-+          .validateForm(values)
-+          .then(({ fieldErrors }) => fieldErrors)
-+      }
-    initialValues={initialLoginInfo}
-    render={({ handleSubmit, submitting, pristine, values }) => (
++              formValidation
++                .validateForm(values)
++                .then(({ fieldErrors }) => fieldErrors)
++            }
+          render={({ handleSubmit, submitting, pristine, values }) => (
+            <form onSubmit={handleSubmit} noValidate>
 ```
+
+- Now try to directly click on the login button.
+
+> Excercise display a message when this happens.
 
 # Excercises
 

@@ -370,7 +370,7 @@ export const validateCredentials = (
 _./src/pods/login/login.container.tsx_
 
 ```diff
-+ import {validateCredentials} from './api';
++ import {validateCredentials} from './login.api';
 
   const doLogin = (loginInfo: LoginEntityVm) => {
 -    history.push(routesLinks.hotelCollection);
