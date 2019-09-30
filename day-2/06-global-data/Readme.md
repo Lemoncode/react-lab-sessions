@@ -11,7 +11,6 @@ Summary steps:
 - Store as global data the login information.
 - Display the user logged in the app bar.
 
-
 ## Prerequisites
 
 Install [Node.js and npm](https://nodejs.org/en/) if they are not already installed on your computer.
@@ -27,32 +26,32 @@ npm install
 ```
 
 - Now that we can pass the login page (user admin password test) we will navigate to standard application
-pages, we will define a layout that will display an appbar plus the name of the user logged in.
+  pages, we will define a layout that will display an appbar plus the name of the user logged in.
 
 - Let's start by defining this layout (check out material's ui )
 
 _./src/layout/app.layout.tsx_
 
 ```tsx
-import * as React from 'react';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
-import IconButton from '@material-ui/core/IconButton';
-import AccountCircle from '@material-ui/icons/AccountCircle';
+import * as React from "react";
+import AppBar from "@material-ui/core/AppBar";
+import Toolbar from "@material-ui/core/Toolbar";
+import Typography from "@material-ui/core/Typography";
+import IconButton from "@material-ui/core/IconButton";
+import AccountCircle from "@material-ui/icons/AccountCircle";
 
-export const AppLayout : React.FunctionComponent = (props) => (
+export const AppLayout: React.FunctionComponent = props => (
   <div>
-      <AppBar position="static">
-        <Toolbar variant="dense">
-          <IconButton color="inherit" aria-label="Menu">
-            <AccountCircle />
-          </IconButton>
-          <Typography variant="h6" color="inherit">
-            User logged in
-          </Typography>
-        </Toolbar>
-      </AppBar>    
+    <AppBar position="static">
+      <Toolbar variant="dense">
+        <IconButton color="inherit" aria-label="Menu">
+          <AccountCircle />
+        </IconButton>
+        <Typography variant="h6" color="inherit">
+          User logged in
+        </Typography>
+      </Toolbar>
+    </AppBar>
     {props.children}
   </div>
 );
@@ -69,6 +68,8 @@ export * from './centered.layout';
 
 - Let's instantiate this layout in the _hotel-collection_ scene.
 
+_./src/scenes/hotel-collection.page.tsx_
+
 ```diff
 import * as React from "react"
 import { Link } from "react-router-dom";
@@ -80,12 +81,12 @@ export const HotelCollectionPage = () =>
 +    <AppLayout>
       <h2>Hello from Hotel Collection Page</h2>
       <Link to={routesLinks.login}>Navigate to Login</Link>
-+    </AppLayout>      
++    </AppLayout>
 -    </>
 ```
 
 - Now we need to get the the user logged in from the login page and store in some global place
-se we can request it from any other page or layout.
+  se we can request it from any other page or layout.
 
 - First of all we need a place that will hold session data, let's create the context:
 
@@ -108,8 +109,9 @@ export const createDefaultUser = (): SessionContextProps => ({
   }
 });
 
-export const SessionContext =
-  React.createContext < SessionContextProps >(createDefaultUser());
+export const SessionContext = React.createContext<SessionContextProps>(
+  createDefaultUser()
+);
 ```
 
 - This session context will expose a provider (it will serve us to set the login name in the context), and a consumer (that will let us consume the login name from the context at any point of the application). We will create a component (we will name it SessionProvider) that on one hand will store in the state the login name and bind it to the SessionContext and on the other hand it will act as a wrapper (usually it will sit on top of the application and wrap the application).
@@ -154,15 +156,15 @@ import {routerSwitchRoutes} from 'core';
 
 
 ReactDOM.render(
-+  <SessionProvider>  
++  <SessionProvider>
    <HashRouter>
      <Switch>
        <Route exact={true} path={routerSwitchRoutes.login} component={LoginPage} />
        <Route path={routerSwitchRoutes.hotelCollection} component={HotelCollectionPage} />
      </Switch>
    </HashRouter>
-+  </SessionProvider>   
-   ,  
++  </SessionProvider>
+   ,
   document.getElementById('root')
 );
 ```
@@ -183,7 +185,7 @@ import AccountCircle from '@material-ui/icons/AccountCircle';
 - export const AppLayout : React.FunctionComponent = (props) => (
 + export const AppLayout : React.FunctionComponent = (props) => {
 +   const loginContext = React.useContext(SessionContext);
-+ return (  
++ return (
   <div>
       <AppBar position="static">
         <Toolbar variant="dense">
@@ -195,11 +197,11 @@ import AccountCircle from '@material-ui/icons/AccountCircle';
 -            User logged in
           </Typography>
         </Toolbar>
-      </AppBar>    
+      </AppBar>
     {props.children}
   </div>
-+   )  
-+ }  
++   )
++ }
 );
 ```
 
@@ -225,7 +227,7 @@ import { loginFormValidation } from "./login.validation";
 
 ```diff
 export const LoginContainerInner = (props: Props) => {
-+   const loginContext = React.useContext(SessionContext);  
++   const loginContext = React.useContext(SessionContext);
   const [loginFormErrors, setLoginFormErrors] = React.useState<LoginFormErrors>(
     createDefaultLoginFormErrors()
   );
@@ -270,4 +272,3 @@ export const LoginContainerInner = (props: Props) => {
 # Excercises
 
 - Implement a footer on the master layout.
-

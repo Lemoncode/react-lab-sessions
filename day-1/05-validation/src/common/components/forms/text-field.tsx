@@ -8,7 +8,8 @@ export const TextField: React.SFC<FieldRenderProps<any, any>> = ({
   ...rest
 }) => {
   const showError =
-    ((meta.submitError && !meta.dirtySinceLastSubmit) || meta.error) &&
+    ((meta.submitError && !meta.dirtySinceLastSubmit) ||
+      (meta.error && !meta.error.succeeded)) &&
     meta.touched;
 
   return (
