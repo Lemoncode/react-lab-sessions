@@ -33,6 +33,12 @@ Install [Node.js and npm](https://nodejs.org/en/) if they are not already instal
 npm install
 ```
 
+- Let's install a form management library (react-final-form).
+
+```bash
+npm install final-form react-final-form --save
+```
+
 - Let's start by directly allowing the user to navigate to the hotel collection list when he clicks on
   the login button.
 
@@ -58,7 +64,7 @@ import { LoginComponent } from "./login.component";
 export const LoginContainer = () => {
 +  const history = useHistory();
 
-+  const doLogin = () => {
++  const doLogin = (loginInfo: LoginEntityVm) => {
 +     history.push(routesLinks.hotelCollection);
 +  }
 
@@ -69,11 +75,17 @@ export const LoginContainer = () => {
 
 - Now we have to define _onLogin_ property on the _login.component_
 
+```diff
+import Button from "@material-ui/core/Button";
+import { createStyles, makeStyles } from "@material-ui/core";
++ import { Form, Field } from "react-final-form";
+```
+
 _./src/pods/login/login.component.tsx_
 
 ```diff
-interface Props extends WithStyles<typeof styles> {
-+ onLogin : () => void;
+interface Props {
++ onLogin: (loginInfo: LoginEntityVm) => void;
 }
 ```
 
@@ -93,7 +105,7 @@ export const LoginComponentInner = (props: Props) => {
             <TextField label="Name" margin="normal" />
             <TextField label="Password" type="password" margin="normal" />
 -            <Button variant="contained" color="primary">
-+            <Button variant="contained" color="primary" onClick={onLogin}>
++            <Button type="submit" variant="contained" color="primary">
               Login
             </Button>
           </div>
@@ -236,7 +248,7 @@ export const LoginContainer = () => {
     history.push(routesLinks.hotelCollection);
   };
 
-+  return <LoginComponent onLogin={doLogin} initialLoginInfo={initialLogin} />;
++  return <LoginComponent onLogin={doLogin} initialLoginInfo={initialLogin} />
 };
 ```
 
@@ -250,14 +262,14 @@ _./src/pods/login/login.component.tsx_
 
 // (...)
 
-interface Props extends WithStyles<typeof styles> {
+interface Props {
   onLogin : () => void;
 + initialLoginInfo : LoginEntityVm;
 }
 
 export const LoginComponentInner = (props: Props) => {
--   const { classes, onLogin } = props;
-+ const { classes, onLogin, initialLoginInfo} = props;
+-   const { onLogin } = props;
++ const { onLogin, initialLoginInfo} = props;
 ```
 
 - Let's add react final form _FORM_ into the login Component
@@ -276,13 +288,14 @@ export const LoginComponent = (props: Props) => {
 +         <Form
 +            onSubmit={(values) => onLogin(values)}
 +            initialValues={initialLoginInfo}
-+            render={({ handleSubmit, submitting, pristine, values }) => (
-              <TextField label="Name" margin="normal" />
-              <TextField label="Password" type="password" margin="normal" />
--              <Button variant="contained" color="primary">
-+              <Button type="submit" variant="contained" color="primary">
-                Login
-              </Button>
++            render={({ handleSubmit}) => (
++                <form onSubmit={handleSubmit} noValidate>
+                  <TextField label="Name" margin="normal" />
+                  <TextField label="Password" type="password" margin="normal" />
+    -              <Button variant="contained" color="primary">
+    +              <Button type="submit" variant="contained" color="primary">
+                    Login
+                  </Button>
 +              </form>
 +            )}/>
         </div>
