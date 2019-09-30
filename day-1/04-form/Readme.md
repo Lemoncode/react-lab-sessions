@@ -50,7 +50,23 @@ We need to navigate by code (javascript):
 
 > If you are using a legacy version you can do it by using an hoc provided by react router, more about Hoc: https://reactjs.org/docs/higher-order-components.html
 
-- Let's start by importing _useHistory_ hook and
+- We are going to define the viewmodel entity that will hold the login information
+
+_./src/pods/login.vm.ts_
+
+```typescript
+export interface LoginEntityVm {
+  login: string;
+  password: string;
+}
+
+export const createEmptyLogin = (): LoginEntityVm => ({
+  login: "",
+  password: ""
+});
+```
+
+- Let's add some navigation by code, we will import _useHistory_ hook and
   navigate and add a hanlder in the container to navigate to the login button.
 
 _./src/pods/login.container.tsx_
@@ -73,13 +89,8 @@ export const LoginContainer = () => {
 };
 ```
 
-- Now we have to define _onLogin_ property on the _login.component_
-
-```diff
-import Button from "@material-ui/core/Button";
-import { createStyles, makeStyles } from "@material-ui/core";
-+ import { Form, Field } from "react-final-form";
-```
+- Now we have to define _onLogin_ property on the _login.component_,
+  let's connect it in our button.
 
 _./src/pods/login/login.component.tsx_
 
@@ -92,8 +103,12 @@ interface Props {
 _./src/pods/login/login.component.tsx_
 
 ```diff
++ import { LoginEntityVm } from "./login.vm";
+
+// (...)
+
 export const LoginComponentInner = (props: Props) => {
--  const { classes } = props;
+   const classes = useStyles(props);
 +  const { onLogin } = props;
 
   return (
@@ -105,7 +120,7 @@ export const LoginComponentInner = (props: Props) => {
             <TextField label="Name" margin="normal" />
             <TextField label="Password" type="password" margin="normal" />
 -            <Button variant="contained" color="primary">
-+            <Button type="submit" variant="contained" color="primary">
++            <Button type="submit" variant="contained" color="primary" onClick={() => onLogin(null)}>
               Login
             </Button>
           </div>
@@ -116,7 +131,7 @@ export const LoginComponentInner = (props: Props) => {
 };
 ```
 
-- Let's run the project
+- Let's run the project and check that navigation is being done.
 
 ```
 npm start
@@ -134,13 +149,7 @@ npm start
     - React Final Form: control form state.
     - Fonk: Form validation libray.
 
-- Let's install react-final-form
-
-```bash
-npm install react-final-form --save
-```
-
-- Now we need to do some plumbing, in order to integrate material-ui with final form:
+* Now we need to do some plumbing, in order to integrate material-ui with final form:
 
   - We could make use of a third partie library: https://github.com/Deadly0/final-form-material-ui,
     but then you take the risk of keeping it in sync with material-ui current version.
@@ -178,7 +187,7 @@ export const TextField: React.SFC<FieldRenderProps<any, any>> = ({
 
 - And create the barrel
 
-_./common/components/forms/index.tsx_
+_./common/components/forms/index.ts_
 
 ```typescript
 export * from "./text-field";
@@ -209,22 +218,6 @@ _./webpack.config.js_
       core: path.resolve(__dirname, "./src/core/"),
       pods: path.resolve(__dirname, "./src/pods/")
     },
-```
-
-- Tiem to worry about the data, let's create a viewModel:
-
-_./src/pods/login.vm.ts_
-
-```typescript
-export interface LoginEntityVm {
-  login: string;
-  password: string;
-}
-
-export const createEmptyLogin = (): LoginEntityVm => ({
-  login: "",
-  password: ""
-});
 ```
 
 - We will store initial login information in the container state, and pass it
@@ -258,7 +251,6 @@ export const LoginContainer = () => {
 _./src/pods/login/login.component.tsx_
 
 ```diff
-+ import {LoginEntityVm} from './login.vm'
 
 // (...)
 
@@ -284,18 +276,19 @@ export const LoginComponent = (props: Props) => {
     <>
       <Card>
         <CardHeader title="Login" />
-        <div className={classes.formContainer}>
 +         <Form
 +            onSubmit={(values) => onLogin(values)}
 +            initialValues={initialLoginInfo}
-+            render={({ handleSubmit}) => (
++            render={({ handleSubmit, submitting, pristine, values }) => (
 +                <form onSubmit={handleSubmit} noValidate>
-                  <TextField label="Name" margin="normal" />
-                  <TextField label="Password" type="password" margin="normal" />
-    -              <Button variant="contained" color="primary">
-    +              <Button type="submit" variant="contained" color="primary">
-                    Login
-                  </Button>
+                  <div className={classes.formContainer}>
+                    <TextField label="Name" margin="normal" />
+                    <TextField label="Password" type="password" margin="normal" />
+-                   <Button variant="contained" color="primary">
++                   <Button type="submit" variant="contained" color="primary">
+                      Login
+                    </Button>
+                 </div>
 +              </form>
 +            )}/>
         </div>
@@ -344,12 +337,17 @@ import CardContent from "@material-ui/core/CardContent";
       >
         Login
       </Button>
+      </div>
 +      <pre>{JSON.stringify(values, undefined, 2)}</pre>
 +      <Field name="login">
 +        {props => <pre>{JSON.stringify(props, undefined, 2)}</pre>}
 +      </Field>
     </form>
 ```
+
+> **Play here**, what would happen if we get previous user name from a remote api, excercise
+> play in container with useEffect and setTimeout and check that React Final Form is reactive
+> listen for this changes.
 
 - Now it's time validate that the credentials are valid, to do that we will create a fake validation
   service and we will simulate that we are making a request to a server (using setTimeout).
@@ -374,9 +372,9 @@ _./src/pods/login/login.container.tsx_
 ```diff
 + import {validateCredentials} from './api';
 
-  const doLogin = () => {
--    console.log(credentials);
-+   validateCredentials(credentials.login, credentials.password).then((areValidCredentials) => {
+  const doLogin = (loginInfo: LoginEntityVm) => {
+-    history.push(routesLinks.hotelCollection);
++   validateCredentials(loginInfo.login, loginInfo.password).then((areValidCredentials) => {
 +       (areValidCredentials) ?
 +           history.push(routesLinks.hotelCollection)
 +       :
