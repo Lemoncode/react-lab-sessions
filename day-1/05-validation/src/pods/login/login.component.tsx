@@ -2,11 +2,11 @@ import * as React from "react";
 import Card from "@material-ui/core/Card";
 import CardHeader from "@material-ui/core/CardHeader";
 import CardContent from "@material-ui/core/CardContent";
-import { TextField } from "common/components/forms";
 import Button from "@material-ui/core/Button";
 import { createStyles, makeStyles } from "@material-ui/core";
 import { Form, Field } from "react-final-form";
 import { LoginEntityVm } from "./login.vm";
+import { TextField } from "common/components/forms";
 import { formValidation } from "./login.validation";
 
 const useStyles = makeStyles({
@@ -30,17 +30,17 @@ export const LoginComponent = (props: Props) => {
     <>
       <Card>
         <CardHeader title="Login" />
-        <div className={classes.formContainer}>
-          <Form
-            onSubmit={values => onLogin(values)}
-            validate={values =>
-              formValidation
-                .validateForm(values)
-                .then(({ fieldErrors }) => fieldErrors)
-            }
-            initialValues={initialLoginInfo}
-            render={({ handleSubmit, submitting, pristine, values }) => (
-              <form onSubmit={handleSubmit} noValidate>
+        <Form
+          onSubmit={values => onLogin(values)}
+          initialValues={initialLoginInfo}
+          validate={values =>
+            formValidation
+              .validateForm(values)
+              .then(({ fieldErrors }) => fieldErrors)
+          }
+          render={({ handleSubmit, submitting, pristine, values }) => (
+            <form onSubmit={handleSubmit} noValidate>
+              <div className={classes.formContainer}>
                 <Field
                   fullWidth
                   name="login"
@@ -51,6 +51,7 @@ export const LoginComponent = (props: Props) => {
                     formValidation.validateField(meta.name, value)
                   }
                 />
+
                 <Field
                   fullWidth
                   name="password"
@@ -61,17 +62,18 @@ export const LoginComponent = (props: Props) => {
                     formValidation.validateField(meta.name, value)
                   }
                 />
+
                 <Button type="submit" variant="contained" color="primary">
                   Login
                 </Button>
-                <pre>{JSON.stringify(values, undefined, 2)}</pre>
-                <Field name="login">
-                  {props => <pre>{JSON.stringify(props, undefined, 2)}</pre>}
-                </Field>
-              </form>
-            )}
-          />
-        </div>
+              </div>
+              <pre>{JSON.stringify(values, undefined, 2)}</pre>
+              <Field name="login">
+                {props => <pre>{JSON.stringify(props, undefined, 2)}</pre>}
+              </Field>
+            </form>
+          )}
+        />
       </Card>
     </>
   );

@@ -68,7 +68,7 @@ export const formValidation = createFormValidation(validationSchema);
 _./src/pods/login/login.component.ts_
 
 ```typescript
-import { formValidation } from "./login.validation.ts";
+import { formValidation } from "./login.validation";
 ```
 
 _./src/pods/login/login.component.ts_

@@ -6,4 +6,5 @@ const validationSchema = {
     password: [Validators.required.validator]
   }
 };
+
 export const formValidation = createFormValidation(validationSchema);
