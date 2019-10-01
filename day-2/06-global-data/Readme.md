@@ -90,7 +90,7 @@ export const HotelCollectionPage = () =>
 
 - First of all we need a place that will hold session data, let's create the context:
 
-_./src/core/sessionContext.tsx_
+_./src/core/session-context.tsx_
 
 ```typescript
 import * as React from "react";
@@ -121,6 +121,7 @@ Append this to the bottom of the file.
 _./src/core/sessionContext.tsx_
 
 ```typescript
+// (...)
 export const SessionProvider: React.StatelessComponent = props => {
   const [login, setLogin] = React.useState<string>("");
 
@@ -138,7 +139,7 @@ _./src/core/index.ts_
 
 ```diff
 export * from './routes';
-+ export * from './sessionContext';
++ export * from './session-context';
 ```
 
 - Let's setup the sessionProvider at the top of our application.
@@ -202,7 +203,7 @@ import AccountCircle from '@material-ui/icons/AccountCircle';
   </div>
 +   )
 + }
-);
+-);
 ```
 
 - Now we need to get the dat from the login page and store it in the context.
@@ -226,7 +227,7 @@ import { loginFormValidation } from "./login.validation";
 ```
 
 ```diff
-export const LoginContainerInner = (props: Props) => {
+export const LoginContainer = (props: Props) => {
 +   const loginContext = React.useContext(SessionContext);
   const [loginFormErrors, setLoginFormErrors] = React.useState<LoginFormErrors>(
     createDefaultLoginFormErrors()
@@ -237,35 +238,23 @@ export const LoginContainerInner = (props: Props) => {
   );
   const { history } = props;
 
-  // TODO: Excercise refactor this method follow SRP
-  const doLogin = () => {
-    loginFormValidation.validateForm(credentials).then(formValidationResult => {
-      if (formValidationResult.succeeded) {
-        validateCredentials(credentials.login, credentials.password).then(
-          areValidCredentials => {
-+            if(areValidCredentials) {
-+               loginContext.updateLogin(credentials.login);
-+                history.push(routesLinks.hotelCollection);
-+            } else {
-+                alert(
-+                  "invalid credentials, use admin/test, excercise: display a mui snackbar instead of this alert.");
-+            }
--            areValidCredentials
--              ? history.push(routesLinks.hotelCollection)
--              : alert(
--                  "invalid credentials, use admin/test, excercise: display a mui snackbar instead of this alert."
--                );
-          }
-        );
-      } else {
-        alert("error, review the fields");
-        const updatedLoginFormErrors = {
-          ...loginFormErrors,
-          ...formValidationResult.fieldErrors
-        };
-        setLoginFormErrors(updatedLoginFormErrors);
++ const navigateToHotel = (loginInfo: LoginEntityVm) => {
++   loginContext.updateLogin(loginInfo.login);
++   history.push(routesLinks.hotelCollection)
++ }
+
+  const doLogin = (loginInfo: LoginEntityVm) => {
+    validateCredentials(loginInfo.login, loginInfo.password).then(
+      areValidCredentials => {
+        areValidCredentials
+-          ? history.push(routesLinks.hotelCollection)
++          ?
++          navigateToHotel(loginInfo)
+          : alert(
+              "invalid credentials, use admin/test, excercise: display a mui snackbar instead of this alert."
+            );
       }
-    });
+    );
   };
 ```
 

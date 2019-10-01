@@ -14,8 +14,9 @@ export const createDefaultUser = (): SessionContextProps => ({
   }
 });
 
-export const SessionContext =
-  React.createContext <SessionContextProps>(createDefaultUser());
+export const SessionContext = React.createContext<SessionContextProps>(
+  createDefaultUser()
+);
 
 export const SessionProvider: React.StatelessComponent = props => {
   const [login, setLogin] = React.useState<string>("");
@@ -26,4 +27,3 @@ export const SessionProvider: React.StatelessComponent = props => {
     </SessionContext.Provider>
   );
 };
-  
