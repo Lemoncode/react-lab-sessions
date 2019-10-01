@@ -4,7 +4,7 @@ import { HotelEntityVm } from "./hotel-collection.vm";
 import { basePicturesUrl } from "core";
 import { getHotelCollection, HotelEntityApi } from "./hotel-collection.api";
 import { mapFromApiToVm } from "./hotel-collection.mapper";
-import { mapFromAToBCollection } from "common";
+import { mapFromAToBCollection } from "common/utils";
 
 const useHotelCollection = () => {
   const [hotelCollection, setHotelCollection] = React.useState<HotelEntityVm[]>(
@@ -20,12 +20,10 @@ const useHotelCollection = () => {
 };
 
 export const HotelCollectionContainer = () => {
-  const {hotelCollection, loadHotelCollection} = useHotelCollection();
+  const { hotelCollection, loadHotelCollection } = useHotelCollection();
 
   React.useEffect(() => {
     loadHotelCollection();
-
-    return () => {console.log('do your cleanup here')}
   }, []);
 
   return <HotelCollectionComponent hotelCollection={hotelCollection} />;

@@ -39,10 +39,6 @@ npm install
 cd backend
 ```
 
-```bash
-npm run mock-server
-```
-
 - Let's start the mock server.
 
 ```bash
@@ -130,6 +126,7 @@ _./src/pods/hotel-collection/hotel-collection.api.ts_
 _./src/pods/hotel-collection/hotel-collection.api.ts_
 
 ```typescript
+// (...)
 const getHotelsUrl = `${baseApiUrl}/api/hotels`;
 
 // TODO: Just only managing the "happy path", adding error handling here or upper level 
@@ -168,7 +165,7 @@ export const mapFromApiToVm = (apiEntity : HotelEntityApi) : HotelEntityVm => ({
 
 - We could create a specific mapper for collections, but we can implement this in a generic way:
 
-_./src/common/collection.helper.ts_
+_./src/common/uitls/collection.helper.ts_
 
 ```typescript
 export const mapFromAToBCollection = <ORIGIN,DESTINATION>(singleMapperfn : (ORIGIN) => DESTINATION, inputCollection : ORIGIN[]) : DESTINATION[] => 
@@ -179,7 +176,8 @@ export const mapFromAToBCollection = <ORIGIN,DESTINATION>(singleMapperfn : (ORIG
 _./src/common/index.ts_
 
 ```diff
-export * from './collection.helper';
+export * from "./final-form-adapter";
++ export * from './collection.helper';
 ```
 
 - Now it's time to jump into the UI side, let's open the _HotelCollectionContainer_
@@ -221,7 +219,7 @@ _./src/pods/hotel-collection/hotel-collection.container.tsx_
 import {basePicturesUrl} from 'core';
 + import {getHotelCollection, HotelEntityApi} from './hotel-collection.api';
 + import {mapFromApiToVm} from './hotel-collection.mapper';
-+ import {mapFromAToBCollection} from 'common';
++ import {mapFromAToBCollection} from 'common/utils';
 ```
 
 - Now let's make use of _React.UseEffect_ to call the api when the component is mounted.

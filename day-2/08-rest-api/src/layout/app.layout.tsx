@@ -7,9 +7,7 @@ import AccountCircle from "@material-ui/icons/AccountCircle";
 import { SessionContext } from "core";
 
 export const AppLayout: React.FunctionComponent = props => {
-
   const loginContext = React.useContext(SessionContext);
-
   return (
     <div>
       <AppBar position="static">
@@ -18,7 +16,7 @@ export const AppLayout: React.FunctionComponent = props => {
             <AccountCircle />
           </IconButton>
           <Typography variant="h6" color="inherit">
-          {loginContext.login}
+            {loginContext.login}
           </Typography>
         </Toolbar>
       </AppBar>
