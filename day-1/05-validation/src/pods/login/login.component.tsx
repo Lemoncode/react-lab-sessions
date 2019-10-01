@@ -8,6 +8,7 @@ import { Form, Field } from "react-final-form";
 import { LoginEntityVm } from "./login.vm";
 import { TextField } from "common/components/forms";
 import { formValidation } from "./login.validation";
+import { validateField, validateForm } from "common/utils/";
 
 const useStyles = makeStyles({
   formContainer: {
@@ -33,11 +34,7 @@ export const LoginComponent = (props: Props) => {
         <Form
           onSubmit={values => onLogin(values)}
           initialValues={initialLoginInfo}
-          validate={values =>
-            formValidation
-              .validateForm(values)
-              .then(({ fieldErrors }) => fieldErrors)
-          }
+          validate={values => validateForm(formValidation, values)}
           render={({ handleSubmit, submitting, pristine, values }) => (
             <form onSubmit={handleSubmit} noValidate>
               <div className={classes.formContainer}>
@@ -48,7 +45,7 @@ export const LoginComponent = (props: Props) => {
                   type="text"
                   label="Name"
                   validate={(value, _, meta) =>
-                    formValidation.validateField(meta.name, value)
+                    validateField(formValidation, meta.name, value)
                   }
                 />
 
@@ -59,7 +56,7 @@ export const LoginComponent = (props: Props) => {
                   type="password"
                   label="Password"
                   validate={(value, _, meta) =>
-                    formValidation.validateField(meta.name, value)
+                    validateField(formValidation, meta.name, value)
                   }
                 />
 

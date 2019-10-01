@@ -121,9 +121,122 @@ _./src/pods/login/login.component.ts_
             <form onSubmit={handleSubmit} noValidate>
 ```
 
-- Now try to directly click on the login button.
+- Now try to directly click on the login button, what happened?
+  **Login button is not working** Why is happenning this? Because Fonk
+  provide rich context error information, in case of success React
+  Final Form expects a null or undefined entry. Let's create
+  an adaptor for Final Form (in the future this adaptor will be published).
 
-> Excercise display a message when this happens.
+_./src/common/utils/final-form-adapter.ts_
+
+```typescript
+import { ValidationResult, FormValidationResult } from "@lemoncode/fonk";
+
+// TODO: in future releases we will create
+// a separate microlibrary called: fonk-final-form
+// will include a createValidationFinalForm, that will
+// implement a ValidationForm class including the
+// final form expected behavior.
+// TODO export FormValidation in fonk.d.ts
+// import {FormValidation} from '@lemoncode/fonk'
+// formValidation : FormValidation
+// Add error handling
+export const validateField = (
+  formValidation,
+  fieldId: string,
+  value: any,
+  values?: any
+): Promise<ValidationResult> => {
+  return new Promise<ValidationResult>(resolve => {
+    formValidation.validateField(fieldId, value, values).then(result => {
+      if (!result || result.succeeded === true) {
+        resolve(null);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+};
+
+export const validateForm = (
+  formValidation,
+  values
+): Promise<FormValidationResult> =>
+  formValidation
+    .validateForm(values)
+    .then(({ succeeded, fieldErrors }) => (succeeded ? null : fieldErrors));
+```
+
+- Let's create a barrel.
+
+_./src/common/utils/index.ts_
+
+```typescript
+export * from "./final-form-adapter";
+```
+
+- Now let's update the validation in the form.
+
+Let's add the import to the file.
+
+_./src/pods/login/login.component.tsx_
+
+```diff
+import { TextField } from "common/components/forms";
+import { formValidation } from "./login.validation";
++ import {validateField, validateForm} from 'common/utils/'
+```
+
+First on the form
+
+_./src/pods/login/login.component.tsx_
+
+```diff
+        <Form
+          onSubmit={values => onLogin(values)}
+          initialValues={initialLoginInfo}
+          validate={values =>
++             validateForm(formValidation, values)
+-            formValidation
+-              .validateForm(values)
+-              .then(({ fieldErrors }) => fieldErrors)
+          }
+```
+
+The on the fields
+
+_./src/pods/login/login.component.tsx_
+
+```diff
+                <Field
+                  fullWidth
+                  name="login"
+                  component={TextField}
+                  type="text"
+                  label="Name"
+                  validate={(value, _, meta) =>
++                    validateField(formValidation, meta.name, value)
+-                    formValidation.validateField(meta.name, value)
+                  }
+                />
+
+                <Field
+                  fullWidth
+                  name="password"
+                  component={TextField}
+                  type="password"
+                  label="Password"
+                  validate={(value, _, meta) =>
++                    validateField(formValidation, meta.name, value)
+-                    formValidation.validateField(meta.name, value)
+                  }
+                />
+```
+
+> Excercise taking a look to this code, in the validateField we are repeating an inline
+> function (it would be for every field), can we extract this to a component function?
+
+> Excercise display a message when clicking on submit and there are form validation errors.
 
 # Excercises
 
