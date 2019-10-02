@@ -1,80 +1,32 @@
 import * as React from "react";
-import { withRouter, RouteComponentProps } from "react-router-dom";
 import { LoginComponent } from "./login.component";
+import { useHistory } from "react-router-dom";
 import { routesLinks, SessionContext } from "core";
-import {
-  LoginEntity,
-  createEmptyLogin,
-  LoginFormErrors,
-  createDefaultLoginFormErrors
-} from "./login.vm";
-import { validateCredentials } from "./api";
-import { loginFormValidation } from "./login.validation";
+import { createEmptyLogin, LoginEntityVm } from "./login.vm";
+import { validateCredentials } from "./login.api";
 
-interface Props extends RouteComponentProps {}
+export const LoginContainer = () => {
+  const loginContext = React.useContext(SessionContext);
+  const history = useHistory();
+  const [initialLogin] = React.useState<LoginEntityVm>(createEmptyLogin());
 
-export const LoginContainerInner = (props: Props) => {
-  const loginContext = React.useContext(SessionContext);  
-  const [loginFormErrors, setLoginFormErrors] = React.useState<LoginFormErrors>(
-    createDefaultLoginFormErrors()
-  );
+  const navigateToHotel = (loginInfo: LoginEntityVm) => {
+    loginContext.updateLogin(loginInfo.login);
+    history.push(routesLinks.hotelCollection);
+  };
 
-  const [credentials, setCredentials] = React.useState<LoginEntity>(
-    createEmptyLogin()
-  );
-  const { history } = props;
-
-  // TODO: Excercise refactor this method follow SRP
-  const doLogin = () => {
-    loginFormValidation.validateForm(credentials).then(formValidationResult => {
-      if (formValidationResult.succeeded) {
-        validateCredentials(credentials.login, credentials.password).then(
-          areValidCredentials => {
-            if(areValidCredentials) {
-                  loginContext.updateLogin(credentials.login);
-                  history.push(routesLinks.hotelCollection);
-              } else {
-                  alert(
-                    "invalid credentials, use admin/test, excercise: display a mui snackbar instead of this alert."
-                    );
-              }  
-          }            
-        );
-      } else {
-        alert("error, review the fields");
-        const updatedLoginFormErrors = {
-          ...loginFormErrors,
-          ...formValidationResult.fieldErrors
-        };
-        setLoginFormErrors(updatedLoginFormErrors);
+  const doLogin = (loginInfo: LoginEntityVm) => {
+    validateCredentials(loginInfo.login, loginInfo.password).then(
+      areValidCredentials => {
+        areValidCredentials
+          ? 
+          navigateToHotel(loginInfo)
+          : alert(
+              "invalid credentials, use admin/test, excercise: display a mui snackbar instead of this alert."
+            );
       }
-    });
+    );
   };
 
-  const onUpdateCredentialsField = (name, value) => {
-    setCredentials({
-      ...credentials,
-      [name]: value
-    });
-
-    loginFormValidation
-      .validateField(credentials, name, value)
-      .then(fieldValidationResult => {
-        setLoginFormErrors({
-          ...loginFormErrors,
-          [name]: fieldValidationResult
-        });
-      });
-  };
-
-  return (
-    <LoginComponent
-      onLogin={doLogin}
-      credentials={credentials}
-      onUpdateCredentials={onUpdateCredentialsField}
-      loginFormErrors={loginFormErrors}
-    />
-  );
+  return <LoginComponent onLogin={doLogin} initialLoginInfo={initialLogin} />;
 };
-
-export const LoginContainer = withRouter<Props>(LoginContainerInner);

@@ -1,36 +1,37 @@
 import * as React from "react";
 import Card from "@material-ui/core/Card";
 import { HotelEntityVm } from "../hotel-collection.vm";
-import {Theme} from "@material-ui/core/styles";
 import CardHeader from "@material-ui/core/CardHeader/CardHeader";
 import Avatar from "@material-ui/core/Avatar/Avatar";
 import IconButton from "@material-ui/core/IconButton/IconButton";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
-import EditIcon from "@material-ui/icons/edit";
-import DeleteIcon from "@material-ui/icons/delete";
+import EditIcon from "@material-ui/icons/Edit";
+import DeleteIcon from "@material-ui/icons/Delete";
 import {
   CardContent,
   CardMedia,
   Typography,
   CardActions
 } from "@material-ui/core";
-import { withStyles, createStyles, WithStyles } from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core";
+import { Theme } from "@material-ui/core/styles";
 
-interface Props extends WithStyles<typeof styles> {
+interface Props {
   hotel: HotelEntityVm;
-  editHotel : (id : string) => void;  
+  navigateToEditHotel: (id: string) => void;
 }
 
-const styles = (theme : Theme)  =>
-  createStyles({
-    card: {
-      width: "500px",
-      marginTop: theme.spacing.unit
-    }
-  });
+const useStyles = makeStyles((theme: Theme) => ({
+  card: {
+    width: "500px", // rather be rem?
+    marginTop: theme.spacing(2)
+  }
+}));
 
-export const HotelCardInner = (props: Props) => {
-  const {hotel, classes, editHotel} = props;
+// Todo there are some harcoded styles move them to class styles
+export const HotelCard = (props: Props) => {
+  const classes = useStyles(props);
+  const { hotel, navigateToEditHotel } = props;
 
   return (
     <Card className={classes.card}>
@@ -62,8 +63,11 @@ export const HotelCardInner = (props: Props) => {
           </Typography>
         </div>
       </CardContent>
-      <CardActions disableActionSpacing>
-        <IconButton aria-label="Add to favorites" onClick={() => editHotel(hotel.id)}>
+      <CardActions>
+        <IconButton
+          aria-label="Add to favorites"
+          onClick={() => navigateToEditHotel(hotel.id)}
+        >
           <EditIcon />
         </IconButton>
         <IconButton aria-label="Share">
@@ -73,5 +77,3 @@ export const HotelCardInner = (props: Props) => {
     </Card>
   );
 };
-
-export const HotelCard = withStyles(styles)(HotelCardInner);
