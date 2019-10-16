@@ -36,52 +36,55 @@ npm install
 
 - Let's create an empty _index.ts_ file.
 
-- Now let's start with the fun, let's create a _./src/login.page.tsx_
+- Now let's start with the fun, let's create a _./src/scenes/login.scene.tsx_
 
 > We are going to use the following naming convention: domain-name.widgettype.(ts|x), e.g.:
 
-- hotel-collection.page.tsx: page that displays list of hotels.
+- hotel-collection.scene.tsx: scene that displays list of hotels.
 - hotel-collection.business.ts: plain vanilla js business logic.
 - hotel-collection.container.tsx: hotel collection container.
 - hotel.api.tsx: client rest api.
 - (...)
 
-_./src/scenes/login.page.tsx_
+_./src/scenes/login.scene.tsx_
 
 ```tsx
-import * as React from "react";
+import * as React from 'react';
 
-export const LoginPage = () => (
+export const LoginScene = () => (
   <>
-    <h2>Hello from login Page</h2>
+    <h2>Hello from login Scene</h2>
   </>
 );
+
 ```
 
 - Now let's create a second page, this page will display a list of hotels:
 
-_./src/scenes/hotel-collection.page.tsx_
+_./src/scenes/hotel-collection.scene.tsx_
 
 ```tsx
-import * as React from "react";
+import * as React from 'react';
 
-export const HotelCollectionPage = () => (
+export const HotelCollectionScene = () => (
   <>
-    <h2>Hello from Hotel Collection Page</h2>
+    <h2>Hello from Hotel Collection Scene</h2>
   </>
 );
+
 ```
 
-- Let's export this two pages in our _index_ barrel.
+- Let's export this two scenes in our _index_ barrel.
 
-_./src/pages/index.ts_
+_./src/scenes/index.ts_
 
 ```typescript
-export * from "./login.page";
-export * from "./hotel-collection.page";
+export * from './login.scene';
+export * from './hotel-collection.scene';
+
 ```
 
-- We got two pages, is time to setup the routing mechanism:
+- We got two scenes, is time to setup the routing mechanism:
 
 ```bash
 npm install react-router-dom --save
@@ -101,20 +104,22 @@ _./src/index.tsx_
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 + import { HashRouter, Switch, Route } from 'react-router-dom';
-+ import { LoginPage, HotelCollectionPage } from './scenes';
++ import { LoginScene, HotelCollectionScene } from './scenes';
 - import { HelloComponent } from './hello';
 
 ReactDOM.render(
 -   <HelloComponent/>,
 + <HashRouter>
 +   <Switch>
-+     <Route exact={true} path="/" component={LoginPage} />
-+     <Route path="/hotel-collection" component={HotelCollectionPage} />
++     <Route exact={true} path="/" component={LoginScene} />
++     <Route path="/hotel-collection" component={HotelCollectionScene} />
 +   </Switch>
 + </HashRouter>,
   document.getElementById('root')
 );
 ```
+
+- Remove `hello.tsx` file.
 
 - Let's start the project:
 
@@ -135,29 +140,29 @@ That was cool but:
 
 - Let's add a couple of links to navigate from login page to hotel collection page and viceversa.
 
-_./src/scenes/login.page.tsx_
+_./src/scenes/login.scene.tsx_
 
 ```diff
 import * as React from "react"
 + import { Link } from "react-router-dom";
 
-export const LoginPage = () =>
+export const LoginScene = () =>
     <>
-      <h2>Hello from login Page</h2>
-+      <Link to="/hotel-collection">Navigate to Hotel Collection</Link>
+      <h2>Hello from login Scene</h2>
++     <Link to="/hotel-collection">Navigate to Hotel Collection</Link>
     </>
 ```
 
-_./src/scenes/hotel-collection.page.tsx_
+_./src/scenes/hotel-collection.scene.tsx_
 
 ```diff
 import * as React from "react"
 + import { Link } from "react-router-dom";
 
-export const HotelCollectionPage = () =>
+export const HotelCollectionScene = () =>
     <>
-      <h2>Hello from Hotel Collection Page</h2>
-+      <Link to="/">Navigate to Login</Link>
+      <h2>Hello from Hotel Collection Scene</h2>
++     <Link to="/">Navigate to Login</Link>
     </>
 ```
 
