@@ -1,4 +1,5 @@
 import { Validators, createFormValidation } from "@lemoncode/fonk";
+import { createFinalFormValidation } from "@lemoncode/fonk-final-form";
 
 const validationSchema = {
   field: {
@@ -7,4 +8,4 @@ const validationSchema = {
   }
 };
 
-export const formValidation = createFormValidation(validationSchema);
+export const formValidation = createFinalFormValidation(validationSchema);
