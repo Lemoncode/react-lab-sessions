@@ -1,25 +1,21 @@
-import * as React from "react";
+import * as React from 'react';
 
-export interface SessionContextProps {
+interface Context {
   login: string;
   updateLogin: (value: string) => void;
 }
 
-export const createDefaultUser = (): SessionContextProps => ({
-  login: "no user",
+export const SessionContext = React.createContext<Context>({
+  login: 'no user',
   updateLogin: value => {
     console.warn(
-      "if you are reading this, likely you forgot to add the provider on top of your app"
+      'if you are reading this, likely you forgot to add the provider on top of your app'
     );
-  }
+  },
 });
 
-export const SessionContext = React.createContext<SessionContextProps>(
-  createDefaultUser()
-);
-
-export const SessionProvider: React.StatelessComponent = props => {
-  const [login, setLogin] = React.useState<string>("");
+export const SessionProvider: React.FunctionComponent = props => {
+  const [login, setLogin] = React.useState('');
 
   return (
     <SessionContext.Provider value={{ login, updateLogin: setLogin }}>
