@@ -36,52 +36,52 @@ npm install
 
 - Let's create an empty _index.ts_ file.
 
-- Now let's start with the fun, let's create a _./src/login.page.tsx_
+- Now let's start with the fun, let's create a _./src/scenes/login.scene.tsx_
 
 > We are going to use the following naming convention: domain-name.widgettype.(ts|x), e.g.:
 
-- hotel-collection.page.tsx: page that displays list of hotels.
+- hotel-collection.scene.tsx: scene that displays list of hotels.
 - hotel-collection.business.ts: plain vanilla js business logic.
 - hotel-collection.container.tsx: hotel collection container.
 - hotel.api.tsx: client rest api.
 - (...)
 
-_./src/scenes/login.page.tsx_
+_./src/scenes/login.scene.tsx_
 
 ```tsx
-import * as React from "react";
+import * as React from 'react';
 
-export const LoginPage = () => (
+export const LoginScene = () => (
   <>
-    <h2>Hello from login Page</h2>
+    <h2>Hello from login Scene</h2>
   </>
 );
 ```
 
 - Now let's create a second page, this page will display a list of hotels:
 
-_./src/scenes/hotel-collection.page.tsx_
+_./src/scenes/hotel-collection.scene.tsx_
 
 ```tsx
-import * as React from "react";
+import * as React from 'react';
 
-export const HotelCollectionPage = () => (
+export const HotelCollectionScene = () => (
   <>
-    <h2>Hello from Hotel Collection Page</h2>
+    <h2>Hello from Hotel Collection Scene</h2>
   </>
 );
 ```
 
-- Let's export this two pages in our _index_ barrel.
+- Let's export this two scenes in our _index_ barrel.
 
-_./src/pages/index.ts_
+_./src/scenes/index.ts_
 
 ```typescript
-export * from "./login.page";
-export * from "./hotel-collection.page";
+export * from './login.scene';
+export * from './hotel-collection.scene';
 ```
 
-- We got two pages, is time to setup the routing mechanism:
+- We got two scenes, is time to setup the routing mechanism:
 
 ```bash
 npm install react-router-dom --save
@@ -101,20 +101,22 @@ _./src/index.tsx_
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 + import { HashRouter, Switch, Route } from 'react-router-dom';
-+ import { LoginPage, HotelCollectionPage } from './scenes';
++ import { LoginScene, HotelCollectionScene } from './scenes';
 - import { HelloComponent } from './hello';
 
 ReactDOM.render(
 -   <HelloComponent/>,
 + <HashRouter>
 +   <Switch>
-+     <Route exact={true} path="/" component={LoginPage} />
-+     <Route path="/hotel-collection" component={HotelCollectionPage} />
++     <Route exact={true} path="/" component={LoginScene} />
++     <Route path="/hotel-collection" component={HotelCollectionScene} />
 +   </Switch>
 + </HashRouter>,
   document.getElementById('root')
 );
 ```
+
+- Remove `hello.tsx` file.
 
 - Let's start the project:
 
@@ -135,29 +137,29 @@ That was cool but:
 
 - Let's add a couple of links to navigate from login page to hotel collection page and viceversa.
 
-_./src/scenes/login.page.tsx_
+_./src/scenes/login.scene.tsx_
 
 ```diff
 import * as React from "react"
 + import { Link } from "react-router-dom";
 
-export const LoginPage = () =>
+export const LoginScene = () =>
     <>
-      <h2>Hello from login Page</h2>
-+      <Link to="/hotel-collection">Navigate to Hotel Collection</Link>
+      <h2>Hello from login Scene</h2>
++     <Link to="/hotel-collection">Navigate to Hotel Collection</Link>
     </>
 ```
 
-_./src/scenes/hotel-collection.page.tsx_
+_./src/scenes/hotel-collection.scene.tsx_
 
 ```diff
 import * as React from "react"
 + import { Link } from "react-router-dom";
 
-export const HotelCollectionPage = () =>
+export const HotelCollectionScene = () =>
     <>
-      <h2>Hello from Hotel Collection Page</h2>
-+      <Link to="/">Navigate to Login</Link>
+      <h2>Hello from Hotel Collection Scene</h2>
++     <Link to="/">Navigate to Login</Link>
     </>
 ```
 
@@ -170,7 +172,7 @@ export const HotelCollectionPage = () =>
 > It is possible to create navigation aliases as well (https://stackoverflow.com/questions/43493153/can-i-create-alias-routes-using-react-router), sample:
 
 ```tsx
-<Route exact={true} path={["/", "/login"]} component={LoginPage} />
+<Route exact={true} path={['/', '/login']} component={LoginPage} />
 ```
 
 - Now let's define _master pages_ aka _layouts_ What's that? Imagine you want a group of pages
@@ -181,23 +183,23 @@ export const HotelCollectionPage = () =>
   (in our next example we will move this ot a CSS in JS solution)
   _centeredLayout_.
 
-_./src/layout/centered.layout.tsx_
+_./src/layoutss/centered.layout.tsx_
 
 ```tsx
-import * as React from "react";
+import * as React from 'react';
 
 // TODO (next examples): move style to CSS in JS
-export const SingleViewLayout: React.FunctionComponent = props => (
+export const CenteredLayout: React.FunctionComponent = props => (
   <div
     style={{
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      width: "100vw",
-      height: "100vh",
-      boxSizing: "border-box",
-      padding: "2rem",
-      overflow: "auto"
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      width: '100vw',
+      height: '100vh',
+      boxSizing: 'border-box',
+      padding: '2rem',
+      overflow: 'auto',
     }}
   >
     {props.children}
@@ -207,28 +209,28 @@ export const SingleViewLayout: React.FunctionComponent = props => (
 
 Let's create now a barrer (index) that will contains all the layout exports:
 
-_./src/layout/index.ts_
+_./src/layouts/index.ts_
 
 ```tsx
-export * from "./centered.layout";
+export * from './centered.layout';
 ```
 
 - Let's apply this layout in our login page:
 
-_./src/scenes/login.page.tsx_
+_./src/scenes/login.scene.tsx_
 
 ```diff
 import * as React from "react"
 import { Link } from "react-router-dom";
-+ import {SingleViewLayout} from '../layout';
++ import { CenteredLayout } from '../layouts';
 
-export const LoginPage = () =>
+export const LoginScene = () =>
 -    <>
-+    <SingleViewLayout>
-      <h2>Hello from login Page</h2>
++    <CenteredLayout>
+      <h2>Hello from login Scene</h2>
       <Link to="/hotel-collection">Navigate to Hotel Collection</Link>
 -    </>
-+    </SingleViewLayout>
++    </CenteredLayout>
 ```
 
 - Let's run the sample, now we get our loginPage centered.
@@ -237,7 +239,7 @@ export const LoginPage = () =>
 npm start
 ```
 
-- That was great, but we are starting to use relative paths on _imports_ (e.g. _'../layout'_),
+- That was great, but we are starting to use relative paths on _imports_ (e.g. _'../layouts'_),
   this can become a nightmare, having imports like _'../../../../services'_, let's configure some
   root aliases to avoid this.
 
@@ -249,7 +251,7 @@ _./webpack.config.js_
   resolve: {
 +    alias: {
 +      // Later on we will add more aliases here
-+      layout: path.resolve(__dirname, './src/layout/'),
++      layouts: path.resolve(__dirname, './src/layouts/'),
 +      scenes: path.resolve(__dirname, './src/scenes/'),
 +      core: path.resolve(__dirname, './src/core/'),
 +    },
@@ -273,7 +275,7 @@ Now we need to add some special configuration to our _tsconfig_ (typescript)
     "suppressImplicitAnyIndexErrors": true,
 +    "baseUrl": "./src/",
 +    "paths": {
-+      "layout": ["./layout/"],
++      "layouts": ["./layouts/"],
 +      "scenes": ["./scenes/"],
 +      "core": ["./core/"]
 +    }
@@ -285,15 +287,15 @@ Now we need to add some special configuration to our _tsconfig_ (typescript)
 
 > Once we jump in to unit testing with Jest we will have to add as well this list of aliases.
 
-- Now we can get rid of the _layout_ relative path in _login.page.tsx_.
+- Now we can get rid of the _layout_ relative path in _login.scene.tsx_.
 
-_./src/scenes/login.page.tsx_
+_./src/scenes/login.scene.tsx_
 
 ```diff
 import * as React from "react"
 import { Link } from "react-router-dom";
-- import {SingleViewLayout} from '../layout';
-+ import {SingleViewLayout} from 'layout';
+- import { CenteredLayout } from '../layouts';
++ import { CenteredLayout } from 'layouts';
 ```
 
 - As last step we will remove harcoded routes entries, and wrap all the routes in a const file
@@ -304,40 +306,63 @@ import { Link } from "react-router-dom";
 _./src/core/routes.ts_
 
 ```typescript
-import { generatePath } from "react-router";
+import { generatePath } from 'react-router';
 
-type NavigationFunction = (id: string) => string;
-
-interface BaseRoutes {
+interface SwitchRoutes {
+  root: string;
   login: string;
   hotelCollection: string;
-  hotelEdit: string | NavigationFunction;
-}
-
-interface AppBaseRoutes extends BaseRoutes {
   hotelEdit: string;
 }
 
-interface RoutesLinks extends BaseRoutes {
+export const switchRoutes: SwitchRoutes = {
+  root: '/',
+  login: '/login',
+  hotelCollection: '/hotel-collection',
+  hotelEdit: '/hotel-edit/:id',
+};
+
+type NavigationFunction = (id: string) => string;
+
+interface LinkRoutes extends Omit<SwitchRoutes, 'hotelEdit'> {
   hotelEdit: NavigationFunction;
 }
 
-type RouterSwitchRoutes = AppBaseRoutes;
+export const linkRoutes: LinkRoutes = {
+  ...switchRoutes,
+  hotelEdit: id => generatePath(switchRoutes.hotelEdit, { id }),
+};
+```
 
-const appBaseRoutes: AppBaseRoutes = {
-  login: "/",
-  hotelCollection: "/hotel-collection",
-  hotelEdit: "/hotel-edit"
+> NOTE: A second version could be:
+
+```javascript
+import { generatePath } from 'react-router';
+
+interface BaseRoutes {
+  root: string;
+  login: string;
+  hotelCollection: string;
+  hotelEdit: string;
+}
+
+const baseRoutes: BaseRoutes = {
+  root: '/',
+  login: '/login',
+  hotelCollection: '/hotel-collection',
+  hotelEdit: '/hotel-edit/:id',
 };
 
-export const routerSwitchRoutes: RouterSwitchRoutes = {
-  ...appBaseRoutes,
-  hotelEdit: `/${appBaseRoutes.hotelEdit}/:id`
-};
+type NavigationFunction = (id?: string) => string;
 
-export const routesLinks: RoutesLinks = {
-  ...appBaseRoutes,
-  hotelEdit: id => generatePath(routerSwitchRoutes.hotelEdit, { id })
+interface Routes extends Omit<BaseRoutes, 'hotelEdit'> {
+  hotelEdit: NavigationFunction;
+}
+
+export const routes: Routes = {
+  ...baseRoutes,
+  hotelEdit: id =>
+    id ? generatePath(baseRoutes.hotelEdit, { id }) : baseRoutes.hotelEdit,
 };
 ```
 
@@ -346,7 +371,7 @@ export const routesLinks: RoutesLinks = {
 _./src/core/index.ts_
 
 ```typescript
-export * from "./routes";
+export * from './routes';
 ```
 
 - Let's replace our hardcoded values with this consts.
@@ -357,61 +382,63 @@ _./src/index.tsx_
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { HashRouter, Switch, Route } from 'react-router-dom';
-import { LoginPage, HotelCollectionPage } from './scenes';
-+ import {routerSwitchRoutes} from 'core';
+import { LoginScene, HotelCollectionScene } from './scenes';
++ import { switchRoutes } from 'core';
 
 ReactDOM.render(
-   <HashRouter>
-     <Switch>
-       <Route
-          exact={true}
--          path='/'
-+          path={routerSwitchRoutes.login}
-          component={LoginPage} />
-       <Route
--          path="/hotel-collection",
-+          path={routerSwitchRoutes.hotelCollection}
-          component={HotelCollectionPage} />
-     </Switch>
-   </HashRouter>,
+  <HashRouter>
+    <Switch>
+      <Route
+        exact={true}
+-       path="/"
++       path={[switchRoutes.root, switchRoutes.login]}
+        component={LoginScene}
+      />
+      <Route
+-       path="/hotel-collection"
++       path={switchRoutes.hotelCollection}
+        component={HotelCollectionScene}
+      />
+    </Switch>
+  </HashRouter>,
   document.getElementById('root')
 );
+
 ```
 
 - Now let's replace harcoded entries in the Link components.
 
-_./src/scenes/login.page.tsx_
+_./src/scenes/login.scene.tsx_
 
 ```diff
-import * as React from "react"
-import { Link } from "react-router-dom";
-- import {SingleViewLayout} from '../layout';
-+ import {SingleViewLayout} from 'layout';
-+ import {routesLinks} from 'core';
+import * as React from 'react';
+import { Link } from 'react-router-dom';
+import { CenteredLayout } from 'layouts';
++ import { linkRoutes } from 'core';
 
-export const LoginPage = () =>
-    <SingleViewLayout>
-      <h2>Hello from login Page</h2>
-      <Link
-+        to={routesLinks.hotelCollection}
--        to="/hotel-collection"
-      >Navigate to Hotel Collection</Link>
-    </SingleViewLayout>
+export const LoginScene = () => (
+  <CenteredLayout>
+    <h2>Hello from login Scene</h2>
+-   <Link to="/hotel-collection">Navigate to Hotel Collection</Link>
++   <Link to={linkRoutes.hotelCollection}>Navigate to Hotel Collection</Link>
+  </CenteredLayout>
+);
+
 ```
 
-_./src/scenes/hotel-collection.page.tsx_
+_./src/scenes/hotel-collection.scene.tsx_
 
 ```diff
-import * as React from "react"
-import { Link } from "react-router-dom";
-+ import {routesLinks} from 'core';
+import * as React from 'react';
+import { Link } from 'react-router-dom';
++ import { linkRoutes } from 'core';
 
-export const HotelCollectionPage = () =>
-    <>
-      <h2>Hello from Hotel Collection Page</h2>
-      <Link
-+        to={routesLinks.login}
--        to="/"
-        >Navigate to login</Link>
-    </>
+export const HotelCollectionScene = () => (
+  <>
+    <h2>Hello from Hotel Collection Scene</h2>
+-   <Link to="/">Navigate to Login</Link>
++   <Link to={linkRoutes.login}>Navigate to Login</Link>
+  </>
+);
+
 ```

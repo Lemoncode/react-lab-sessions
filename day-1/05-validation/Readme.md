@@ -49,16 +49,18 @@ npm install @lemoncode/fonk @lemoncode/fonk-final-form --save
 _./src/pods/login/login.validation.ts_
 
 ```typescript
-import { Validators, createFormValidation } from "@lemoncode/fonk";
+import { ValidationSchema, Validators } from '@lemoncode/fonk';
+import { createFinalFormValidation } from '@lemoncode/fonk-final-form';
 
-const validationSchema = {
+const validationSchema: ValidationSchema = {
   field: {
     login: [Validators.required.validator],
-    password: [Validators.required.validator]
-  }
+    password: [Validators.required.validator],
+  },
 };
 
 export const formValidation = createFinalFormValidation(validationSchema);
+
 ```
 
 - Now that we have all the plumbing is time to jump into the UI side.
@@ -67,8 +69,8 @@ export const formValidation = createFinalFormValidation(validationSchema);
 
 _./src/pods/login/login.component.ts_
 
-```typescript
-import { formValidation } from "./login.validation";
+```diff
++ import { formValidation } from './login.validation';
 ```
 
 _./src/pods/login/login.component.ts_
@@ -103,15 +105,17 @@ _./src/pods/login/login.component.ts_
 npm start
 ```
 
+# Another way using `validateForm`
+
 - Nice if we enter info on a field, clean it up and jump to another field we get inline error messages,
-  BUT we want to execute all the validations when we click on the login button, let's do that
+  BUT we want to execute all the validations when we click on the login button, let's do that:
 
 _./src/pods/login/login.component.ts_
 
 ```diff
         <Form
           onSubmit={values => onLogin(values)}
-          initialValues={initialLoginInfo}
+          initialValues={initialLogin}
 +         validate={values =>
 +              formValidation
 +                .validateForm(values)
@@ -119,6 +123,26 @@ _./src/pods/login/login.component.ts_
 +            }
           render={({ handleSubmit, submitting, pristine, values }) => (
             <form onSubmit={handleSubmit} noValidate>
+                <Field
+                  fullWidth
+                  name="login"
+                  component={TextField}
+                  type="text"
+                  label="Name"
+-                 validate={(value, _, meta) =>
+-                   formValidation.validateField(meta.name, value)
+-                 }
+                />
+                <Field
+                  fullWidth
+                  name="password"
+                  component={TextField}
+                  type="password"
+                  label="Password"
+-                 validate={(value, _, meta) =>
+-                   formValidation.validateField(meta.name, value)
+-                 }
+                />
 ```
 
 > Excercise taking a look to this code, in the validateField we are repeating an inline

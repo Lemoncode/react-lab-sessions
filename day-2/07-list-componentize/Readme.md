@@ -90,47 +90,52 @@ export interface HotelEntityVm {
 _./src/pods/hotel-collection/hotel-collection.component.tsx_
 
 ```tsx
-import * as React from "react";
+import * as React from 'react';
 
 export const HotelCollectionComponent = () => {
   return <h1>Hello from collection component</h1>;
 };
+
 ```
 
 _./src/pods/hotel-collection/hotel-collection.container.tsx_
 
 ```tsx
-import * as React from "react";
-import { HotelCollectionComponent } from "./hotel-collection.component";
+import * as React from 'react';
+import { HotelCollectionComponent } from './hotel-collection.component';
 
 export const HotelCollectionContainer = () => {
   return <HotelCollectionComponent />;
 };
+
 ```
 
 _./src/pods/hotel-collection/index.ts_
 
 ```tsx
-export * from "./hotel.collection.container";
+export * from './hotel-collection.container';
+
 ```
 
 - Let's instante the _HotelCollectionContainer_ in our hotel collection scene.
 
-_./src/scenes/hotel-collection.page.tsx_
+_./src/scenes/hotel-collection.scene.tsx_
 
 ```diff
-import * as React from "react"
-import { Link } from "react-router-dom";
-import {routesLinks} from 'core';
-import { AppLayout } from "layout";
+import * as React from 'react';
+import { Link } from 'react-router-dom';
+import { linkRoutes } from 'core';
+import { AppLayout } from 'layouts';
 + import { HotelCollectionContainer } from 'pods/hotel-collection';
 
-export const HotelCollectionPage = () =>
-    <AppLayout>
-+       <HotelCollectionContainer/>
--       <h2>Hello from Hotel Collection Page</h2>
--       <Link to={routesLinks.login}>Navigate to Login</Link>
-    </AppLayout>
+export const HotelCollectionScene = () => (
+  <AppLayout>
+-   <h2>Hello from Hotel Collection Scene</h2>
+-   <Link to={linkRoutes.login}>Navigate to Login</Link>
++   <HotelCollectionContainer />
+  </AppLayout>
+);
+
 ```
 
 - Let's give a try.
@@ -175,7 +180,9 @@ import { HotelCollectionComponent } from './hotel-collection.component'
 +]);
 
 export const HotelCollectionContainer = () => {
-+ const [hotelCollection, setHotelCollection] = React.useState<HotelEntityVm[]>(createMockHotelCollection());
++ const [hotelCollection, setHotelCollection] = React.useState<HotelEntityVm[]>(
++   createMockHotelCollection()
++ );
 
   return (
 -    <HotelCollectionComponent/>
@@ -199,7 +206,7 @@ import * as React from "react";
 + }
 
 - export const HotelCollectionComponent = () => {
-+ export const HotelCollectionComponent = (props : Props) => {
++ export const HotelCollectionComponent: React.FunctionComponent<Props> = props => {
 +  const {hotelCollection} = props;
   return (
 -    <h1>Hello from collection component</h1>
@@ -214,28 +221,28 @@ import * as React from "react";
 _./src/pods/hotel-collection/components/hotel-card.component.tsx_
 
 ```tsx
-import * as React from "react";
-import Card from "@material-ui/core/Card";
-import { HotelEntityVm } from "../hotel-collection.vm";
-import CardHeader from "@material-ui/core/CardHeader/CardHeader";
-import Avatar from "@material-ui/core/Avatar/Avatar";
-import IconButton from "@material-ui/core/IconButton/IconButton";
-import MoreVertIcon from "@material-ui/icons/MoreVert";
-import EditIcon from "@material-ui/icons/Edit";
-import DeleteIcon from "@material-ui/icons/Delete";
+import * as React from 'react';
+import Card from '@material-ui/core/Card';
+import { HotelEntityVm } from '../hotel-collection.vm';
+import CardHeader from '@material-ui/core/CardHeader/CardHeader';
+import Avatar from '@material-ui/core/Avatar/Avatar';
+import IconButton from '@material-ui/core/IconButton/IconButton';
+import MoreVertIcon from '@material-ui/icons/MoreVert';
+import EditIcon from '@material-ui/icons/Edit';
+import DeleteIcon from '@material-ui/icons/Delete';
 import {
   CardContent,
   CardMedia,
   Typography,
-  CardActions
-} from "@material-ui/core";
+  CardActions,
+} from '@material-ui/core';
 
 interface Props {
   hotel: HotelEntityVm;
 }
 
 // Todo there are some harcoded styles move them to class styles
-export const HotelCard = (props: Props) => {
+export const HotelCard: React.FunctionComponent<Props> = props => {
   const { hotel } = props;
 
   return (
@@ -253,15 +260,15 @@ export const HotelCard = (props: Props) => {
       <CardContent>
         <div
           style={{
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center"
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
           }}
         >
           <CardMedia
             image={hotel.picture}
             title={hotel.name}
-            style={{ height: 0, paddingTop: "56.25%" }}
+            style={{ height: 0, paddingTop: '56.25%' }}
           />
           <Typography variant="subtitle1" gutterBottom>
             {hotel.description}
@@ -279,6 +286,7 @@ export const HotelCard = (props: Props) => {
     </Card>
   );
 };
+
 ```
 
 - Let's give a try
@@ -309,13 +317,14 @@ npm run start
   - We will define this prefix under _./src/core/const.ts_
   - On a real development instead of harcoding _http://localhost:3000_
     we would just point to environment variables.
-  - Then we will expose it under the _common/inded.ts_ and update this in the
+  - Then we will expose it under the _common/index.ts_ and update this in the
     viewmodel (later on we will update this on the hotel Entity mapper)
 
 _./src/core/const.ts_
 
 ```typescript
-export const basePicturesUrl = "http://localhost:3000";
+export const basePicturesUrl = 'http://localhost:3000';
+
 ```
 
 _./src/core/index.ts_
@@ -329,7 +338,8 @@ export * from './sessionContext';
 _./src/pods/hotel-collection/hotel-collection.container.tsx_
 
 ```diff
-+ import {basePicturesUrl} from 'core';
+...
++ import { basePicturesUrl } from 'core';
 
 export const createMockHotelCollection = () : HotelEntityVm[] => ([
 {
@@ -343,8 +353,8 @@ export const createMockHotelCollection = () : HotelEntityVm[] => ([
 },
 {
   "id": "024bd61a-27e4-11e6-ad95-35ed01160e57",
-+  "picture": `${basePicturesUrl}/thumbnails/16673_260_t.jpg`,
 -  "picture": "/thumbnails/16673_260_t.jpg",
++  "picture": `${basePicturesUrl}/thumbnails/16673_260_t.jpg`,
   "name": "The Westin Seattle",
   "address": "1900 5th Ave",
   "description": "With a stay at The Westin Seattle, you'll be centrally laocated in Seattle, steps from Westlake Center and minutes from Pacific Place. This 4-star hotel is close to",
@@ -368,14 +378,14 @@ interface Props {
 export const HotelCollectionComponent = (props: Props) => {
   const { hotelCollection } = props;
 
--   return <HotelCard hotel={hotelCollection[0]} />;
+- return <HotelCard hotel={hotelCollection[0]} />;
 + return (
-+    <>
-+    {
-+       hotelCollection.map((hotel) => <HotelCard hotel={hotel}/>)
-+    }
-+    </>
-+ )
++   <>
++     {hotelCollection.map(hotel => (
++       <HotelCard key={hotel.id} hotel={hotel} />
++     ))}
++   </>
++ );
 };
 
 ```
@@ -390,16 +400,20 @@ _./src/pods/hotel-collection/hotel-collection.component.tsx_
 
 ```diff
 import * as React from "react";
-+ import { makeStyles } from "@material-ui/core";
++ import { makeStyles } from '@material-ui/core/styles';
 import { HotelEntityVm } from "./hotel-collection.vm";
 import { HotelCard } from "./components/hotel-card.component"; // on next step we will create this component
 
 + const useStyles = makeStyles({
 + });
 
-export const HotelCollectionComponent = (props: Props) => {
-+  const classes = useStyles(props);
+interface Props {
+  hotelCollection: HotelEntityVm[];
+}
+
+export const HotelCollectionComponent: React.FunctionComponent<Props> = props => {
   const { hotelCollection } = props;
++ const classes = useStyles(props);
 
   return (
     <>
@@ -414,7 +428,7 @@ export const HotelCollectionComponent = (props: Props) => {
 - Let's start by adding a flex layout to the list of cards.
 
 ```diff
-const styles = theme => createStyles({
+const useStyles = makeStyles({
 + listLayout: {
 +   display: 'flex',
 +   flexWrap: 'wrap',
@@ -423,17 +437,21 @@ const styles = theme => createStyles({
 });
 
 
-export const HotelCollectionComponentInner = (props: Props) => {
+
+export const HotelCollectionComponent: React.FunctionComponent<
+  Props
+> = props => {
   const { hotelCollection } = props;
+  const classes = useStyles(props);
 
   return (
--     <>
-+     <div className={classes.listLayout}>
+-   <>
++   <div className={classes.listLayout}>
       {hotelCollection.map(hotel => (
-        <HotelCard hotel={hotel} />
+        <HotelCard key={hotel.id} hotel={hotel} />
       ))}
--     </>
-+     </div>
+-   </>
++   </div>
   );
 };
 ```
@@ -443,8 +461,8 @@ export const HotelCollectionComponentInner = (props: Props) => {
 _./src/pods/hotel-collection/components/hotel-card.component.tsx_
 
 ```diff
-+ import { makeStyles } from "@material-ui/core";
-+ import {Theme} from "@material-ui/core/styles";
+import * as React from 'react';
++ import { makeStyles, Theme } from '@material-ui/core/styles';
 
  interface Props {
   hotel: HotelEntityVm;
@@ -458,9 +476,9 @@ _./src/pods/hotel-collection/components/hotel-card.component.tsx_
 +   }));
 
 
-export const HotelCard = (props: Props) => {
-+  const classes = useStyles(props);
+export const HotelCard: React.FunctionComponent<Props> = props => {
   const {hotel} = props;
++ const classes = useStyles(props);
 
   return (
 -  <Card>

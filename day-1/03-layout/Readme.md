@@ -84,7 +84,7 @@ npm install @material-ui/core @material-ui/icons --save
 _./src/pods/login/login.component.tsx_
 
 ```tsx
-import * as React from "react";
+import * as React from 'react';
 
 export const LoginComponent = () => {
   return (
@@ -93,6 +93,7 @@ export const LoginComponent = () => {
     </>
   );
 };
+
 ```
 
 - Now a container:
@@ -100,12 +101,13 @@ export const LoginComponent = () => {
 _./src/pods/login/login.container.tsx_
 
 ```tsx
-import * as React from "react";
-import { LoginComponent } from "./login.component";
+import * as React from 'react';
+import { LoginComponent } from './login.component';
 
 export const LoginContainer = () => {
   return <LoginComponent />;
 };
+
 ```
 
 - Let's create a barrel and expose login container so it ca ben consumed by the outer world.
@@ -113,7 +115,8 @@ export const LoginContainer = () => {
 _./src/pods/login/index.ts_
 
 ```typescript
-export { LoginContainer } from "./login.container";
+export * from './login.container';
+
 ```
 
 - Now we need to add our root _pods_ folder as an alias.
@@ -143,21 +146,22 @@ _tsconfig.json_
 
 - Let's use this pod in our login scene.
 
-_./src/scenes/login.page.tsx_
+_./src/scenes/login.scene.tsx_
 
 ```diff
-import * as React from "react"
-import { Link } from "react-router-dom";
-import {SingleViewLayout} from 'layout';
-import {routesLinks} from 'core';
-+ import {LoginContainer} from 'pods/login';
+import * as React from 'react';
+- import { Link } from 'react-router-dom';
+import { CenteredLayout } from 'layouts';
+- import { linkRoutes } from 'core';
++ import { LoginContainer } from 'pods/login';
 
-export const LoginPage = () =>
-    <SingleViewLayout>
-+       <LoginContainer/>
--      <h2>Hello from login Page</h2>
--      <Link to={routesLinks.hotelCollection}>Navigate to Hotel Collection</Link>
-    </SingleViewLayout>
+export const LoginScene = () => (
+  <CenteredLayout>
+-   <h2>Hello from login Scene</h2>
+-   <Link to={linkRoutes.hotelCollection}>Navigate to Hotel Collection</Link>
++   <LoginContainer />
+  </CenteredLayout>
+);
 
 ```
 
@@ -175,7 +179,7 @@ npm start
 Let's start by creating a login card (we will import as well the widgets we need to
 use to build the whole form)
 
-_./src/pods/login.component.tsx_
+_./src/pods/login/login.component.tsx_
 
 ```diff
 import * as React from "react";
@@ -187,7 +191,7 @@ import * as React from "react";
 
 export const LoginComponent = () => {
   return (
-    <>
+-   <>
 -      <h1>Hello from login pod, login component</h1>
 +      <Card>
 +        <CardHeader title="Login" />
@@ -195,7 +199,7 @@ export const LoginComponent = () => {
 +          Content here...
 +        </CardContent>
 +      </Card>
-    </>
+-   </>
   );
 };
 ```
@@ -208,24 +212,22 @@ npm start
 
 - Hey ! we got some results, the card is displayed, let's add now some content:
 
-_./src/pods/login.component.tsx_
+_./src/pods/login/login.component.tsx_
 
 ```diff
-    <>
-      <Card>
-        <CardHeader title="Login" />
-        <CardContent>
--          Content here...
-+        <div>
-+          <TextField label="Name" margin="normal" />
-+          <TextField label="Password" type="password" margin="normal" />
-+          <Button variant="contained" color="primary">
-+            Login
-+          </Button>
-+        </div>
-        </CardContent>
-      </Card>
-    </>
+    <Card>
+      <CardHeader title="Login" />
+      <CardContent>
+-      Content here...
++      <div>
++        <TextField label="Name" margin="normal" />
++        <TextField label="Password" type="password" margin="normal" />
++        <Button variant="contained" color="primary">
++          Login
++        </Button>
++      </div>
+      </CardContent>
+    </Card>
 ```
 
 - Nice we got the controls but layout is looking a bit weird we want the forms
@@ -235,8 +237,9 @@ _./src/pods/login.component.tsx_
   to inject the CSS in our component)
 
 ```diff
-+ import { createStyles, makeStyles } from "@material-ui/core";
-
+import * as React from 'react';
++ import { makeStyles } from '@material-ui/core/styles';
+...
 
 + const useStyles = makeStyles({
 +  formContainer: {
@@ -249,25 +252,23 @@ _./src/pods/login.component.tsx_
 + interface Props {}
 
 - export const LoginComponent = () => {
-+ export const LoginComponent = (props : Props) => {
++ export const LoginComponent: React.FunctionComponent = props => {
 + const { classes } = useStyles(props);
 
   return (
-    <>
-      <Card>
-        <CardHeader title="Login" />
-        <CardContent>
--          <div>
-+          <div className={classes.formContainer}>
-            <TextField label="Name" margin="normal" />
-            <TextField label="Password" type="password" margin="normal" />
-            <Button variant="contained" color="primary">
-              Login
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    </>
+    <Card>
+      <CardHeader title="Login" />
+      <CardContent>
+-       <div>
++       <div className={classes.formContainer}>
+          <TextField label="Name" margin="normal" />
+          <TextField label="Password" type="password" margin="normal" />
+          <Button variant="contained" color="primary">
+            Login
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 ```

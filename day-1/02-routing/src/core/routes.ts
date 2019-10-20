@@ -1,35 +1,26 @@
-import { generatePath } from "react-router";
+import { generatePath } from 'react-router';
 
-type NavigationFunction = (id: string) => string;
-
-interface BaseRoutes {
+interface SwitchRoutes {
+  root: string;
   login: string;
   hotelCollection: string;
-  hotelEdit: string | NavigationFunction;
-}
-
-interface AppBaseRoutes extends BaseRoutes {
   hotelEdit: string;
 }
 
-interface RoutesLinks extends BaseRoutes {
+export const switchRoutes: SwitchRoutes = {
+  root: '/',
+  login: '/login',
+  hotelCollection: '/hotel-collection',
+  hotelEdit: '/hotel-edit/:id',
+};
+
+type NavigationFunction = (id: string) => string;
+
+interface LinkRoutes extends Omit<SwitchRoutes, 'hotelEdit'> {
   hotelEdit: NavigationFunction;
 }
 
-type RouterSwitchRoutes = AppBaseRoutes;
-
-const appBaseRoutes: AppBaseRoutes = {
-  login: "/",
-  hotelCollection: "/hotel-collection",
-  hotelEdit: "/hotel-edit"
-};
-
-export const routerSwitchRoutes: RouterSwitchRoutes = {
-  ...appBaseRoutes,
-  hotelEdit: `/${appBaseRoutes.hotelEdit}/:id`
-};
-
-export const routesLinks: RoutesLinks = {
-  ...appBaseRoutes,
-  hotelEdit: id => generatePath(routerSwitchRoutes.hotelEdit, { id })
+export const linkRoutes: LinkRoutes = {
+  ...switchRoutes,
+  hotelEdit: id => generatePath(switchRoutes.hotelEdit, { id }),
 };

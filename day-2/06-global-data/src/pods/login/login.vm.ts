@@ -4,6 +4,6 @@ export interface LoginEntityVm {
 }
 
 export const createEmptyLogin = (): LoginEntityVm => ({
-  login: "",
-  password: ""
+  login: '',
+  password: '',
 });
