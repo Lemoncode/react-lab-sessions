@@ -14,7 +14,7 @@
     "esModuleInterop": true,
     "baseUrl": "./src/",
     "paths": {
-      "layout": ["./layout/"],
+      "layouts": ["./layouts/"],
       "scenes": ["./scenes/"],
       "core": ["./core/"]
     }
