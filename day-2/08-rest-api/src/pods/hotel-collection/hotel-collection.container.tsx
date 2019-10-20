@@ -1,20 +1,20 @@
-import * as React from "react";
-import { HotelCollectionComponent } from "./hotel-collection.component";
-import { HotelEntityVm } from "./hotel-collection.vm";
-import { basePicturesUrl } from "core";
-import { getHotelCollection, HotelEntityApi } from "./hotel-collection.api";
-import { mapFromApiToVm } from "./hotel-collection.mapper";
-import { mapFromAToBCollection } from "common/utils";
+import * as React from 'react';
+import { HotelCollectionComponent } from './hotel-collection.component';
+import { HotelEntityVm } from './hotel-collection.vm';
+import { getHotelCollection } from './hotel-collection.api';
+import { mapFromApiToVm } from './hotel-collection.mapper';
+import { mapToCollection } from 'common/mappers';
 
 const useHotelCollection = () => {
   const [hotelCollection, setHotelCollection] = React.useState<HotelEntityVm[]>(
     []
   );
 
-  const loadHotelCollection = () =>
+  const loadHotelCollection = () => {
     getHotelCollection().then(result =>
-      setHotelCollection(mapFromAToBCollection(mapFromApiToVm, result))
+      setHotelCollection(mapToCollection(result, mapFromApiToVm))
     );
+  };
 
   return { hotelCollection, loadHotelCollection };
 };

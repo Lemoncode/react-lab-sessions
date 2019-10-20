@@ -4,7 +4,7 @@ In this example we are going to display a list of hotels, we will make use of vi
 data to isolate this from building a rest api, then we will componentize the solution
 (container, component, card... breakdown).
 
-We will take a startup point sample _/day-2/06-global-data_.
+We will take a startup point sample _/day-2/07/list/componentize_.
 
 Summary steps:
 
@@ -22,7 +22,7 @@ Install [Node.js and npm](https://nodejs.org/en/) if they are not already instal
 
 ## Steps to build it
 
-- Copy the content of the `/day-2/06-global-data` folder to an empty folder for the sample.
+- Copy the content of the `/day-2/07/list/componentize` folder to an empty folder for the sample.
 
 - Install the npm packages described in the [./package.json](./package.json) and verify that it works:
 
@@ -118,7 +118,7 @@ _./src/pods/hotel-collection/hotel-collection.api.ts_
 
 ```diff
 + import Axios from 'axios';
-+ import {baseApiUrl} from 'core'
++ import { baseApiUrl } from 'core';
 ```
 
 - Let's append to the _api_ file the following function (getting data from remote source).
@@ -131,13 +131,9 @@ const getHotelsUrl = `${baseApiUrl}/api/hotels`;
 
 // TODO: Just only managing the "happy path", adding error handling here or upper level 
 // would be a good idea
-export const getHotelCollection = () : Promise<HotelEntityApi[]> => {  
-  const promise = new Promise<HotelEntityApi[]>((resolve, reject) => 
-    Axios.get<HotelEntityApi[]>(getHotelsUrl).then((response) => resolve(response.data)
-  ));
+export const getHotelCollection = (): Promise<HotelEntityApi[]> =>
+  Axios.get<HotelEntityApi[]>(getHotelsUrl).then(({ data }) => data);
 
-  return promise;
-} 
 ```
 
 - Now if we try to jump to the component side we will check that we have a mistmatch of entities, we cannot directly
@@ -147,37 +143,39 @@ a lot the development of the UI layer), let's build a mapper to convert from api
 _./src/pods/hotel-collection/hotel-collection.mapper.ts_
 
 ```typescript
-import {HotelEntityApi} from './hotel-collection.api';
-import {HotelEntityVm} from './hotel-collection.vm';
-import {basePicturesUrl} from 'core';
+import { basePicturesUrl } from 'core';
+import * as apiModel from './hotel-collection.api';
+import * as viewModel from './hotel-collection.vm';
 
-export const mapFromApiToVm = (apiEntity : HotelEntityApi) : HotelEntityVm => ({
-  id : apiEntity.id,
-  picture : `${basePicturesUrl}${apiEntity.thumbNailUrl}`,
-  name : apiEntity.name,
-  description : apiEntity.shortDescription,
-  rating : apiEntity.hotelRating,
-  address : apiEntity.address1,
+export const mapFromApiToVm = (hotel: apiModel.HotelEntityApi): viewModel.HotelEntityVm => ({
+  id: hotel.id,
+  picture: `${basePicturesUrl}${hotel.thumbNailUrl}`,
+  name: hotel.name,
+  description: hotel.shortDescription,
+  rating: hotel.hotelRating,
+  address: hotel.address1,
 });
+
 ``` 
 
 > Important, we should add unit testing to this mappers and cover edge cases like null arrays, undefined...
 
 - We could create a specific mapper for collections, but we can implement this in a generic way:
 
-_./src/common/uitls/collection.helper.ts_
+_./src/common/mappers/collection.mapper.ts_
 
 ```typescript
-export const mapFromAToBCollection = <ORIGIN,DESTINATION>(singleMapperfn : (ORIGIN) => DESTINATION, inputCollection : ORIGIN[]) : DESTINATION[] => 
-  inputCollection.map(singleMapperfn);
+export const mapToCollection = <A, B>(collection: A[], mapFn: (A) => B): B[] =>
+  Array.isArray(collection) ? collection.map(mapFn) : [];
+
 ```
 - Let's add it to an index barrel.
 
-_./src/common/index.ts_
+_./src/common/mappers/index.ts_
 
-```diff
-export * from "./final-form-adapter";
-+ export * from './collection.helper';
+```typescript
+export * from './collection.mapper';
+
 ```
 
 - Now it's time to jump into the UI side, let's open the _HotelCollectionContainer_
@@ -216,10 +214,11 @@ export const HotelCollectionContainer = () => {
 _./src/pods/hotel-collection/hotel-collection.container.tsx_
 
 ```diff
-import {basePicturesUrl} from 'core';
-+ import {getHotelCollection, HotelEntityApi} from './hotel-collection.api';
-+ import {mapFromApiToVm} from './hotel-collection.mapper';
-+ import {mapFromAToBCollection} from 'common/utils';
+...
+- import {basePicturesUrl} from 'core';
++ import { getHotelCollection } from './hotel-collection.api';
++ import { mapFromApiToVm } from './hotel-collection.mapper';
++ import { mapToCollection } from 'common/mappers';
 ```
 
 - Now let's make use of _React.UseEffect_ to call the api when the component is mounted.
@@ -228,14 +227,14 @@ _./src/pods/hotel-collection/hotel-collection.container.tsx_
 
 ```diff
 export const HotelCollectionContainer = () => {
--   const [hotelCollection, setHotelCollection] = React.useState<HotelEntityVm[]>(createMockHotelCollection());  
-+   const [hotelCollection, setHotelCollection] = React.useState<HotelEntityVm[]>([]);  
+- const [hotelCollection, setHotelCollection] = React.useState<HotelEntityVm[]>(createMockHotelCollection());  
++ const [hotelCollection, setHotelCollection] = React.useState<HotelEntityVm[]>([]);  
 
-+   React.useEffect(() => {
-+      getHotelCollection().then((result) => 
-+         setHotelCollection(mapFromAToBCollection(mapFromApiToVm, result))
-+      )
-+   },[])
++ React.useEffect(() => {
++   getHotelCollection().then(result =>
++     setHotelCollection(mapToCollection(result, mapFromApiToVm))
++   );
++ }, []);
 
   return (
     <HotelCollectionComponent hotelCollection={hotelCollection}/>
@@ -249,47 +248,33 @@ _./src/pods/hotel-collection/hotel-collection.container.tsx_
 
 ```diff
 + const useHotelCollection = () => {
-+   const [hotelCollection, setHotelCollection] = React.useState<HotelEntityVm[]>([]);
-+
-+  const loadHotelCollection = () => 
-+    getHotelCollection().then(result =>
-+      setHotelCollection(mapFromAToBCollection(mapFromApiToVm, result))
-+    );  
-+
-+  return {hotelCollection, loadHotelCollection};
-+ }
++   const [hotelCollection, setHotelCollection] = React.useState<HotelEntityVm[]>(
++     []
++   );
++ 
++   const loadHotelCollection = () => {
++     getHotelCollection().then(result =>
++       setHotelCollection(mapToCollection(result, mapFromApiToVm))
++     );
++   };
++ 
++   return { hotelCollection, loadHotelCollection };
++ };
 
 export const HotelCollectionContainer = () => {
 -  const [hotelCollection, setHotelCollection] = React.useState<HotelEntityVm[]>([]);
-+  const {hotelCollection, loadHotelCollection} = useHotelCollection();
++  const { hotelCollection, loadHotelCollection } = useHotelCollection();
 
   React.useEffect(() => {
-+      loadHotelCollection();
--    getHotelCollection().then(result =>
--      setHotelCollection(mapFromAToBCollection(mapFromApiToVm, result))
--    );
+-   getHotelCollection().then(result =>
+-     setHotelCollection(mapToCollection(result, mapFromApiToVm))
+-   );
++   loadHotelCollection();
   }, []);
 
   return <HotelCollectionComponent hotelCollection={hotelCollection} />;
 };
 ```
-
-- Just as a last step we forgot to add a key on each entry of the hotel list:
-
-_./src/pods/hotel-collection/hotel-collection.component.tsx_
-
-```diff
-  return (
-    <div className={classes.listLayout}>
-      {hotelCollection.map(hotel => (
--         <HotelCard hotel={hotel} />
-+         <HotelCard hotel={hotel} key={hotel.id}/>
-      ))}
-    </div>
-  );
-
-```
-
 
 # Excercises
 
