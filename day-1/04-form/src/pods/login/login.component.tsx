@@ -49,12 +49,7 @@ export const LoginComponent: React.FunctionComponent<Props> = props => {
                   type="password"
                   label="Password"
                 />
-                <Button
-                  type="submit"
-                  variant="contained"
-                  color="primary"
-                  onClick={() => onLogin(null)}
-                >
+                <Button type="submit" variant="contained" color="primary">
                   Login
                 </Button>
                 <pre>{JSON.stringify(values, undefined, 2)}</pre>

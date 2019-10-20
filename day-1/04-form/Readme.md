@@ -298,7 +298,7 @@ export const LoginComponent: React.FunctionComponent<Props> = props => {
                   type="submit"
                   variant="contained"
                   color="primary"
-                  onClick={() => onLogin(null)}
+-                 onClick={() => onLogin(null)}
                 >
                   Login
                 </Button>
@@ -353,7 +353,6 @@ import CardContent from "@material-ui/core/CardContent";
         type="submit"
         variant="contained"
         color="primary"
-        onClick={() => onLogin(null)}
       >
         Login
       </Button>
