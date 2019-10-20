@@ -52,7 +52,7 @@ We need to navigate by code (javascript):
 
 - We are going to define the viewmodel entity that will hold the login information
 
-_./src/pods/login.vm.ts_
+_./src/pods/login/login.vm.ts_
 
 ```typescript
 export interface LoginEntityVm {
@@ -69,24 +69,26 @@ export const createEmptyLogin = (): LoginEntityVm => ({
 - Let's add some navigation by code, we will import _useHistory_ hook and
   navigate and add a hanlder in the container to navigate to the login button.
 
-_./src/pods/login.container.tsx_
+_./src/pods/login/login.container.tsx_
 
 ```diff
-import * as React from "react";
-import { LoginComponent } from "./login.component";
-+ import { useHistory } from "react-router-dom";
-+ import { routesLinks } from "core";
+import * as React from 'react';
++ import { useHistory } from 'react-router-dom';
+import { LoginComponent } from './login.component';
++ import { linkRoutes } from 'core';
++ import { LoginEntityVm } from './login.vm';
 
 export const LoginContainer = () => {
-+  const history = useHistory();
++ const history = useHistory();
 
-+  const doLogin = (loginInfo: LoginEntityVm) => {
-+     history.push(routesLinks.hotelCollection);
-+  }
++ const handleLogin = (loginInfo: LoginEntityVm) => {
++   history.push(linkRoutes.hotelCollection);
++ };
 
--  return <LoginComponent />;
-+ return <LoginComponent onLogin={doLogin}/>
+- return <LoginComponent />;
++ return <LoginComponent onLogin={handleLogin} />;
 };
+
 ```
 
 - Now we have to define _onLogin_ property on the _login.component_,
@@ -103,30 +105,29 @@ interface Props {
 _./src/pods/login/login.component.tsx_
 
 ```diff
-+ import { LoginEntityVm } from "./login.vm";
++ import { LoginEntityVm } from './login/login.vm';
 
 // (...)
 
-export const LoginComponentInner = (props: Props) => {
+- export const LoginComponent: React.FunctionComponent = props => {
++ export const LoginComponent: React.FunctionComponent<Props> = props => {
    const classes = useStyles(props);
 +  const { onLogin } = props;
 
   return (
-    <>
-      <Card>
-        <CardHeader title="Login" />
-        <CardContent>
-          <div className={classes.formContainer}>
-            <TextField label="Name" margin="normal" />
-            <TextField label="Password" type="password" margin="normal" />
--            <Button variant="contained" color="primary">
-+            <Button type="submit" variant="contained" color="primary" onClick={() => onLogin(null)}>
-              Login
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    </>
+    <Card>
+      <CardHeader title="Login" />
+      <CardContent>
+        <div className={classes.formContainer}>
+          <TextField label="Name" margin="normal" />
+          <TextField label="Password" type="password" margin="normal" />
+-         <Button variant="contained" color="primary">
++         <Button type="submit" variant="contained" color="primary" onClick={() => onLogin(null)}>
+            Login
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 ```
@@ -157,16 +158,20 @@ npm start
 
 _./common/components/forms/text-field.tsx_
 
-```typescript
-import * as React from "react";
-import { FieldRenderProps } from "react-final-form";
-import TextFieldMui from "@material-ui/core/TextField";
+```tsx
+import * as React from 'react';
+import { FieldRenderProps } from 'react-final-form';
+import TextFieldMui from '@material-ui/core/TextField';
 
-export const TextField: React.SFC<FieldRenderProps<any, any>> = ({
-  input: { name, onChange, value, ...restInput },
-  meta,
-  ...rest
-}) => {
+interface Props extends FieldRenderProps<any, any> {}
+
+export const TextField: React.FunctionComponent<Props> = props => {
+  const {
+    input: { name, onChange, value, ...restInput },
+    meta,
+    ...rest
+  } = props;
+
   const showError =
     ((meta.submitError && !meta.dirtySinceLastSubmit) ||
       (meta.error && !meta.error.succeeded)) &&
@@ -180,10 +185,11 @@ export const TextField: React.SFC<FieldRenderProps<any, any>> = ({
       inputProps={restInput}
       onChange={onChange}
       value={value}
-      helperText={showError ? meta.error.message : ""}
+      helperText={showError ? meta.error.message : ''}
     />
   );
 };
+
 ```
 
 - And create the barrel
@@ -191,7 +197,8 @@ export const TextField: React.SFC<FieldRenderProps<any, any>> = ({
 _./common/components/forms/index.ts_
 
 ```typescript
-export * from "./text-field";
+export * from './text-field';
+
 ```
 
 - Now we need to add an alias in tsconfig and webpack config for the common root folder
@@ -202,7 +209,7 @@ _./tsconfig_
     "paths": {
       "layout": ["./layout/"],
       "scenes": ["./scenes/"],
-+      "common": ["./common/"],
++     "common": ["./common/"],
       "core": ["./core/"],
       "pods": ["./pods/"]
     }
@@ -215,7 +222,7 @@ _./webpack.config.js_
       // Later on we will add more aliases here
       layout: path.resolve(__dirname, "./src/layout/"),
       scenes: path.resolve(__dirname, "./src/scenes/"),
-+      common: path.resolve(__dirname, "./src/common/"),
++     common: path.resolve(__dirname, "./src/common/"),
       core: path.resolve(__dirname, "./src/core/"),
       pods: path.resolve(__dirname, "./src/pods/")
     },
@@ -227,23 +234,25 @@ _./webpack.config.js_
 _./src/pods/login/login.container.tsx_
 
 ```diff
-import * as React from "react";
-import { LoginComponent } from "./login.component";
-import { useHistory } from "react-router-dom";
-import { routesLinks } from "core";
-+ import { createEmptyLogin, LoginEntityVm } from "./login.vm";
+import * as React from 'react';
+import { useHistory } from 'react-router-dom';
+import { LoginComponent } from './login.component';
+import { linkRoutes } from 'core';
+- import { LoginEntityVm } from './login.vm';
++ import { LoginEntityVm, createEmptyLogin } from './login.vm';
 
 export const LoginContainer = () => {
   const history = useHistory();
-+  const [initialLogin] = React.useState<LoginEntityVm>(createEmptyLogin());
++ const [initialLogin] = React.useState<LoginEntityVm>(createEmptyLogin());
 
-  const doLogin = (loginInfo: LoginEntityVm) => {
-    console.log(loginInfo);
-    history.push(routesLinks.hotelCollection);
+  const handleLogin = (loginInfo: LoginEntityVm) => {
+    history.push(linkRoutes.hotelCollection);
   };
 
-+  return <LoginComponent onLogin={doLogin} initialLoginInfo={initialLogin} />
+- return <LoginComponent onLogin={handleLogin} />;
++ return <LoginComponent onLogin={handleLogin} initialLogin={initialLogin} />;
 };
+
 ```
 
 - Let's setup this as props on the login component and use destructuring to avoid
@@ -252,17 +261,15 @@ export const LoginContainer = () => {
 _./src/pods/login/login.component.tsx_
 
 ```diff
+import * as React from 'react';
++ import { Form } from 'react-final-form';
 
 // (...)
 
 interface Props {
-  onLogin : () => void;
-+ initialLoginInfo : LoginEntityVm;
+  onLogin: (loginInfo: LoginEntityVm) => void;
++ initialLogin: LoginEntityVm;
 }
-
-export const LoginComponentInner = (props: Props) => {
--   const { onLogin } = props;
-+ const { onLogin, initialLoginInfo} = props;
 ```
 
 - Let's add react final form _FORM_ into the login Component
@@ -270,42 +277,53 @@ export const LoginComponentInner = (props: Props) => {
 _./src/pods/login/login.component.tsx_
 
 ```diff
-export const LoginComponent = (props: Props) => {
+export const LoginComponent: React.FunctionComponent<Props> = props => {
   const classes = useStyles(props);
+- const { onLogin } = props;
++ const { onLogin, initialLogin } = props;
 
   return (
-    <>
-      <Card>
-        <CardHeader title="Login" />
+    <Card>
+      <CardHeader title="Login" />
+      <CardContent>
+        <div className={classes.formContainer}>
 +         <Form
-+            onSubmit={(values) => onLogin(values)}
-+            initialValues={initialLoginInfo}
-+            render={({ handleSubmit, submitting, pristine, values }) => (
-+                <form onSubmit={handleSubmit} noValidate>
-                  <div className={classes.formContainer}>
-                    <TextField label="Name" margin="normal" />
-                    <TextField label="Password" type="password" margin="normal" />
--                   <Button variant="contained" color="primary">
-+                   <Button type="submit" variant="contained" color="primary">
-                      Login
-                    </Button>
-                 </div>
-+              </form>
-+            )}/>
++           onSubmit={values => onLogin(values)}
++           initialValues={initialLogin}
++           render={({ handleSubmit, submitting, pristine, values }) => (
++             <form onSubmit={handleSubmit} noValidate>
+                <TextField label="Name" margin="normal" />
+                <TextField label="Password" type="password" margin="normal" />
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  onClick={() => onLogin(null)}
+                >
+                  Login
+                </Button>
++             </form>
++           )}
++         />
         </div>
-      </Card>
-    </>
+      </CardContent>
+    </Card>
   );
 };
+
 ```
 
 - Let's point to the ReactFinalFrom wrapper TextFields and include binding
   information.
 
 ```diff
+import * as React from 'react';
+- import { Form } from 'react-final-form';
++ import { Form, Field } from 'react-final-form';
+...
 import CardContent from "@material-ui/core/CardContent";
 - import TextField from "@material-ui/core/TextField";
-+ import { TextField } from "common/components/forms";
++ import { TextField } from 'common/components/forms';
 ```
 
 ```diff
@@ -335,14 +353,14 @@ import CardContent from "@material-ui/core/CardContent";
         type="submit"
         variant="contained"
         color="primary"
+        onClick={() => onLogin(null)}
       >
         Login
       </Button>
-      </div>
-+      <pre>{JSON.stringify(values, undefined, 2)}</pre>
-+      <Field name="login">
-+        {props => <pre>{JSON.stringify(props, undefined, 2)}</pre>}
-+      </Field>
++     <pre>{JSON.stringify(values, undefined, 2)}</pre>
++     <Field name="login">
++       {props => <pre>{JSON.stringify(props, undefined, 2)}</pre>}
++     </Field>
     </form>
 ```
 
@@ -353,7 +371,7 @@ import CardContent from "@material-ui/core/CardContent";
 - Now it's time validate that the credentials are valid, to do that we will create a fake validation
   service and we will simulate that we are making a request to a server (using setTimeout).
 
-_./src/pods/login.api.ts_
+_./src/pods/login/login.api.ts_
 
 ```typescript
 // This is just test code, never hard code user and password in JS this should call a real service
@@ -371,39 +389,42 @@ export const validateCredentials = (
 _./src/pods/login/login.container.tsx_
 
 ```diff
-+ import {validateCredentials} from './login.api';
+...
++ import { validateCredentials } from './login.api';
+...
 
-  const doLogin = (loginInfo: LoginEntityVm) => {
--    history.push(routesLinks.hotelCollection);
-+   validateCredentials(loginInfo.login, loginInfo.password).then((areValidCredentials) => {
-+       (areValidCredentials) ?
-+           history.push(routesLinks.hotelCollection)
-+       :
-+      alert('invalid credentials, use admin/test, excercise: display a mui snackbar instead of this alert.')
-+       ;
-+ });
+  const handleLogin = (loginInfo: LoginEntityVm) => {
+-   history.push(linkRoutes.hotelCollection);
++   validateCredentials(loginInfo.login, loginInfo.password).then(
++     areValidCredentials => {
++       areValidCredentials
++         ? history.push(linkRoutes.hotelCollection)
++         : alert(
++             'invalid credentials, use admin/test, excercise: display a mui snackbar instead of this alert.'
++           );
++     }
++   );
   }
 ```
 
 # Excercises
 
-##Excercise 1
+## Excercise 1
 
 LoginComponent can be componentized, final result should look like:
 
 ```tsx
-export const LoginComponentInner = (props: Props) => {
-  const { classes, onLogin } = props;
+export const LoginComponent: React.FunctionComponent<Props> = props => {
+  const { onLogin } = props;
+  const classes = useStyles(props);
 
   return (
-    <>
-      <Card>
-        <CardHeader title="Login" />
-        <CardContent>
-          <LoginForm onLogin={onLogin} />
-        </CardContent>
-      </Card>
-    </>
+    <Card>
+      <CardHeader title="Login" />
+      <CardContent>
+        <LoginForm onLogin={onLogin} />
+      </CardContent>
+    </Card>
   );
 };
 ```
