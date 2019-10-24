@@ -42,6 +42,9 @@ export const LoginComponent: React.FunctionComponent<Props> = props => {
                   component={TextField}
                   type="text"
                   label="Name"
+                  validate={(value, _, meta) =>
+                    formValidation.validateField(meta.name, value)
+                  }
                 />
                 <Field
                   fullWidth
@@ -49,6 +52,9 @@ export const LoginComponent: React.FunctionComponent<Props> = props => {
                   component={TextField}
                   type="password"
                   label="Password"
+                  validate={(value, _, meta) =>
+                    formValidation.validateField(meta.name, value)
+                  }
                 />
                 <Button type="submit" variant="contained" color="primary">
                   Login
