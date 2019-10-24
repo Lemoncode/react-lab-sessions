@@ -123,8 +123,8 @@ _./src/scenes/hotel-collection.scene.tsx_
 
 ```diff
 import * as React from 'react';
-import { Link } from 'react-router-dom';
-import { linkRoutes } from 'core';
+- import { Link } from 'react-router-dom';
+- import { linkRoutes } from 'core';
 import { AppLayout } from 'layouts';
 + import { HotelCollectionContainer } from 'pods/hotel-collection';
 
