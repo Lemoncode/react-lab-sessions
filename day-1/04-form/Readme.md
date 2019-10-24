@@ -173,8 +173,7 @@ export const TextField: React.FunctionComponent<Props> = props => {
   } = props;
 
   const showError =
-    ((meta.submitError && !meta.dirtySinceLastSubmit) ||
-      (meta.error && !meta.error.succeeded)) &&
+    ((meta.submitError && !meta.dirtySinceLastSubmit) || meta.error) &&
     meta.touched;
 
   return (
@@ -185,7 +184,7 @@ export const TextField: React.FunctionComponent<Props> = props => {
       inputProps={restInput}
       onChange={onChange}
       value={value}
-      helperText={showError ? meta.error.message : ''}
+      helperText={showError ? meta.error : ''}
     />
   );
 };
