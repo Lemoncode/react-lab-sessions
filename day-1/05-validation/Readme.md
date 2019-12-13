@@ -116,11 +116,7 @@ _./src/pods/login/login.component.ts_
         <Form
           onSubmit={values => onLogin(values)}
           initialValues={initialLogin}
-+         validate={values =>
-+              formValidation
-+                .validateForm(values)
-+                .then(result => (result ? result.fieldErrors : null))
-+            }
++         validate={ validate={formValidation.validateForm}
           render={({ handleSubmit, submitting, pristine, values }) => (
             <form onSubmit={handleSubmit} noValidate>
                 <Field
