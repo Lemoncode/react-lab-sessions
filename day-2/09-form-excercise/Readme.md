@@ -80,8 +80,10 @@ all the updated data.
 need to create mappers to map between api entity and vm entity).
 - Once we are done let's make post/put update (save).
 
-
 # Extras
 
 - Make this interface responsive.
 
+# Starting point
+
+Take this cut as starting point: https://github.com/Lemoncode/react-lab-sessions/tree/master/day-2/08-rest-api
